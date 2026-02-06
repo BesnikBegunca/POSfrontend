@@ -1,53 +1,66 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+
+// SuperAdmin
 import CreateRestaurant from "./pages/SuperAdmin/CreateRestaurant";
-import OwnerStaff from "./pages/Owner/OwnerStaff";
-
-
-
-function Dashboard() {
-  return (
-    <div style={{ padding: 24 }}>
-      Logged in ✅ {localStorage.getItem("fullName")} ({localStorage.getItem("role")})
-      <div style={{ marginTop: 12 }}>
-        <button
-          onClick={() => {
-            localStorage.clear();
-            window.location.href = "/login";
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
-
+import OwnerHome from "./pages/Owner/OwnerHome";
+import OwnerCreateStaff from "./pages/Owner/OwnerCreateStaff";
+import OwnerStaffList from "./pages/Owner/OwnerStaffList";
+import OwnerSettings from "./pages/Owner/OwnerSettings";
+import OwnerLayout from "./pages/Owner/OwnerLayout";
+/* =======================
+   AUTH GUARDS
+======================= */
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" replace />;
 }
 
+function RoleRoute({ role, children }) {
+  const r = localStorage.getItem("role");
+  return r === role ? children : <Navigate to="/login" replace />;
+}
+
+/* =======================
+   APP
+======================= */
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* AUTH */}
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
 
+        {/* SUPERADMIN */}
         <Route
-          path="/dashboard"
+          path="/superadmin/create-restaurant"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <RoleRoute role="SuperAdmin">
+                <CreateRestaurant />
+              </RoleRoute>
             </ProtectedRoute>
           }
         />
-       <Route path="/superadmin/create-restaurant" element={<CreateRestaurant />} />
-        <Route path="/owner/staff" element={<OwnerStaff />} />
 
+        {/* OWNER DASHBOARD (NESTED) */}
+        <Route
+          path="/owner"
+          element={
+            <ProtectedRoute>
+              <RoleRoute role="Owner">
+                <OwnerLayout />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<OwnerHome />} />
+          <Route path="staff/create" element={<OwnerCreateStaff />} />
+          <Route path="staff" element={<OwnerStaffList />} />
+          <Route path="settings" element={<OwnerSettings />} />
+        </Route>
 
+        {/* DEFAULT */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
