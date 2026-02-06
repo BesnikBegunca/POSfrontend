@@ -1,6 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CreateRestaurant from "./pages/SuperAdmin/CreateRestaurant";
+import OwnerStaff from "./pages/Owner/OwnerStaff";
+
+
 
 function Dashboard() {
   return (
@@ -40,6 +44,9 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+       <Route path="/superadmin/create-restaurant" element={<CreateRestaurant />} />
+        <Route path="/owner/staff" element={<OwnerStaff />} />
+
 
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
