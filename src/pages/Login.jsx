@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import { useState } from "react";
 import axios from "axios";
 
@@ -9,7 +10,7 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     setErr("");
     setLoading(true);
@@ -22,11 +23,11 @@ export default function Login() {
       localStorage.setItem("fullName", res.data.fullName);
       localStorage.setItem("email", res.data.email);
 
-      if (res.data.role === "SuperAdmin")
-        window.location.href = "/superadmin/create-restaurant";
-      else if (res.data.role === "Owner")
-        window.location.href = "/owner";
-      else window.location.href = "/owner";
+      // ✅ redirect sipas role
+      if (res.data.role === "SuperAdmin") window.location.href = "/superadmin";
+      else if (res.data.role === "Owner") window.location.href = "/owner";
+      else window.location.href = "/"; // public
+
     } catch (e2) {
       const data = e2?.response?.data;
       setErr(typeof data === "string" ? data : "Login failed");
@@ -36,32 +37,30 @@ export default function Login() {
   };
 
   return (
-    <div style={styles.page}>
-      {/* LEFT SIDE */}
-      <div style={styles.left}>
-        <div style={styles.brand}>
-          <div style={styles.logo}>POS</div>
+    <div style={styles.viewport}>
+      <section style={styles.left}>
+        <div style={styles.brandRow}>
+          <div style={styles.logo}>STORE</div>
           <div>
-            <h1 style={styles.h1}>Restaurant POS System</h1>
+            <h1 style={styles.h1}>Marketplace Platform</h1>
             <p style={styles.p}>
-              Manage restaurants, staff, tables and sales from one place.
+              SuperAdmin creates stores & owners. Owners add products. Customers browse stores.
             </p>
           </div>
         </div>
 
         <ul style={styles.features}>
-          <li>✔ SuperAdmin → Restaurants</li>
-          <li>✔ Owner → Staff management</li>
-          <li>✔ Admin → Operations</li>
-          <li>✔ Secure JWT Authentication</li>
+          <li>✔ SuperAdmin dashboard</li>
+          <li>✔ Owner dashboard</li>
+          <li>✔ Public stores page</li>
+          <li>✔ Secure JWT</li>
         </ul>
-      </div>
+      </section>
 
-      {/* RIGHT SIDE */}
-      <div style={styles.right}>
-        <form onSubmit={onSubmit} style={styles.form}>
+      <section style={styles.right}>
+        <form onSubmit={submit} style={styles.form}>
           <h2 style={{ margin: 0 }}>Login</h2>
-          <p style={{ opacity: 0.8, marginTop: 6 }}>
+          <p style={{ marginTop: 6, opacity: 0.8 }}>
             Enter your credentials to continue
           </p>
 
@@ -70,48 +69,49 @@ export default function Login() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            autoComplete="email"
           />
 
           <input
             style={styles.input}
-            placeholder="Password"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
           />
 
           {err && <div style={styles.error}>{err}</div>}
 
-          <button type="submit" disabled={loading} style={styles.btn}>
-            {loading ? "Logging in..." : "Login"}
+          <button type="submit" disabled={loading} style={styles.button}>
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
         </form>
-      </div>
+      </section>
     </div>
   );
 }
 
-/* ================= STYLES ================= */
-
 const styles = {
-  page: {
-    minHeight: "100vh",
+  viewport: {
+    width: "100vw",
+    height: "100vh",
     display: "grid",
-    gridTemplateColumns: "1.1fr 0.9fr",
-    background: "linear-gradient(120deg, #070B12, #0B1220)",
-    color: "#E9EEFB",
+    gridTemplateColumns: "1.2fr 0.8fr",
+    background: "linear-gradient(120deg,#070b12,#0b1220)",
+    color: "#e9eefb",
     fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
   },
   left: {
-    padding: "80px 70px",
+    padding: "10vh 8vw",
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
-    gap: 32,
+    gap: 26,
   },
-  brand: {
+  brandRow: {
     display: "flex",
-    gap: 18,
+    gap: 16,
     alignItems: "center",
   },
   logo: {
@@ -121,72 +121,62 @@ const styles = {
     display: "grid",
     placeItems: "center",
     fontWeight: 900,
-    fontSize: 22,
-    background: "#E9EEFB",
-    color: "#0B1220",
+    fontSize: 18,
+    background: "#e9eefb",
+    color: "#0b1220",
+    letterSpacing: 0.6,
   },
-  h1: {
-    margin: 0,
-    fontSize: 36,
-    fontWeight: 900,
-  },
-  p: {
-    marginTop: 8,
-    fontSize: 16,
-    opacity: 0.85,
-    maxWidth: 520,
-  },
+  h1: { margin: 0, fontSize: 40, fontWeight: 900 },
+  p: { marginTop: 10, fontSize: 16, opacity: 0.85, maxWidth: 560 },
   features: {
-    listStyle: "none",
-    padding: 0,
     margin: 0,
+    paddingLeft: 18,
     fontSize: 16,
+    lineHeight: 2,
     opacity: 0.9,
-    lineHeight: 1.9,
   },
   right: {
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-    background: "rgba(255,255,255,0.03)",
+    justifyContent: "center",
+    background: "rgba(255,255,255,0.04)",
   },
   form: {
-    width: "100%",
-    maxWidth: 420,
+    width: "min(460px, 92%)",
     padding: 40,
-    borderRadius: 22,
-    background: "rgba(255,255,255,0.06)",
+    background: "rgba(255,255,255,0.08)",
     border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 20,
   },
   input: {
     width: "100%",
-    padding: "14px 14px",
-    borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.18)",
-    background: "rgba(255,255,255,0.06)",
-    color: "#E9EEFB",
-    marginTop: 14,
-    fontSize: 15,
-    outline: "none",
-  },
-  btn: {
-    width: "100%",
     padding: 14,
+    marginTop: 14,
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.2)",
+    background: "rgba(255,255,255,0.05)",
+    color: "#e9eefb",
+    outline: "none",
+    fontSize: 15,
+  },
+  button: {
+    width: "100%",
     marginTop: 18,
-    borderRadius: 14,
+    padding: 14,
+    borderRadius: 12,
     border: "none",
-    background: "#E9EEFB",
-    color: "#0B1220",
+    background: "#e9eefb",
+    color: "#070b12",
     fontWeight: 900,
-    fontSize: 16,
     cursor: "pointer",
+    fontSize: 15,
   },
   error: {
-    marginTop: 14,
-    padding: 12,
-    borderRadius: 12,
-    background: "rgba(255,60,60,0.15)",
-    color: "#FFD5D5",
+    marginTop: 12,
+    padding: 10,
+    borderRadius: 10,
+    background: "rgba(255,0,0,0.20)",
+    color: "#ffd5d5",
     fontWeight: 700,
   },
 };

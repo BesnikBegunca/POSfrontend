@@ -75,9 +75,9 @@ export default function OwnerCreateStaff() {
             style={inp}
           />
           <select value={role} onChange={(e) => setRole(e.target.value)} style={inp}>
-            <option value="Admin">Admin</option>
-            <option value="Waiter">Waiter</option>
-            <option value="Cashier">Cashier</option>
+            <option value="Manager">Manager</option>
+            <option value="Worker">Worker</option>
+
           </select>
 
           <button style={btn}>Create</button>
