@@ -7,17 +7,20 @@ import Stores from "./pages/public/Stores";
 import StorePage from "./pages/public/StorePage";
 
 // SUPERADMIN
+import SuperAdminHome from "./pages/SuperAdmin/SuperAdminHome";
+import SuperAdminStoresList from "./pages/SuperAdmin/SuperAdminStoresList";
+import SuperAdminLayout from "./pages/SuperAdmin/SuperAdminLayout";
+import CreateStore from "./pages/SuperAdmin/CreateStore";
 
 // OWNER
 import OwnerLayout from "./pages/owner/OwnerLayout";
 import OwnerHome from "./pages/owner/OwnerHome";
-import OwnerStaffList from "./pages/owner/OwnerStaffList";
-import OwnerSettings from "./pages/owner/OwnerSettings";
-import SuperAdminHome from "./pages/SuperAdmin/SuperAdminHome";
-import SuperAdminStoresList from "./pages/SuperAdmin/SuperAdminStoresList";
-import SuperAdminLayout from "./pages/SuperAdmin/SuperAdminLayout";
 import OwnerCreateStaff from "./pages/Owner/OwnerCreateStaff";
-import CreateStore from "./pages/SuperAdmin/CreateStore";
+import OwnerStaffList from "./pages/Owner/OwnerStaffList";
+import OwnerSettings from "./pages/Owner/OwnerSettings";
+
+// MANAGER
+import ManagerProducts from "./pages/manager/ManagerProducts.jsx";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -25,7 +28,12 @@ function ProtectedRoute({ children }) {
 }
 
 function RoleRoute({ role, children }) {
-  return localStorage.getItem("role") === role ? children : <Navigate to="/login" replace />;
+  const token = localStorage.getItem("token");
+  const storedRole = localStorage.getItem("role");
+
+  if (!token) return <Navigate to="/login" replace />;
+  if (storedRole !== role) return <Navigate to="/" replace />; // ⬅️ jo login
+  return children;
 }
 
 export default function App() {
@@ -38,6 +46,18 @@ export default function App() {
 
         {/* AUTH */}
         <Route path="/login" element={<Login />} />
+
+        {/* MANAGER */}
+        <Route
+          path="/manager/products"
+          element={
+            <ProtectedRoute>
+              <RoleRoute role="Manager">
+                <ManagerProducts />
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* SUPERADMIN (dashboard layout) */}
         <Route
@@ -67,7 +87,7 @@ export default function App() {
           }
         >
           <Route index element={<OwnerHome />} />
-          <Route path="staff/create" element={<OwnerCreateStaff/>} />
+          <Route path="staff/create" element={<OwnerCreateStaff />} />
           <Route path="staff" element={<OwnerStaffList />} />
           <Route path="settings" element={<OwnerSettings />} />
         </Route>
