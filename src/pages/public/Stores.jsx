@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import UserMenu from "../../components/UserMenu";
 
 const API = "http://localhost:5083";
 
@@ -30,12 +31,7 @@ export default function Stores() {
           </div>
 
           <div style={styles.authBtns}>
-            <Link to="/login" style={{ ...styles.btn, ...styles.btnGhost }}>
-              Login
-            </Link>
-            <Link to="/register" style={{ ...styles.btn, ...styles.btnPrimary }}>
-              Register
-            </Link>
+            <UserMenu/>
           </div>
         </div>
       </nav>
@@ -54,13 +50,13 @@ export default function Stores() {
           {stores.map((s) => (
             <Link
               key={s.id}
-              to={`/store/${s.slug}`}
+              to={`/store/${s.id}`}
               style={{ textDecoration: "none" }}
             >
               <div style={styles.card} className="store-card">
                 <div style={styles.cardTitle}>{s.name}</div>
-                <div style={styles.cardSlug}>/{s.slug}</div>
-                <div style={styles.cardAction}>Visit Store →</div>
+                <div style={styles.cardSlug}>MAN{s.slug}</div>
+                <div style={styles.cardAction}>Visit Store</div>
               </div>
             </Link>
           ))}

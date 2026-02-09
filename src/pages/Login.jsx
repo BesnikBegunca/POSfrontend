@@ -1,69 +1,137 @@
 // src/pages/Login.jsx
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const API = "http://localhost:5083";
 
 export default function Login() {
+  const nav = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [err, setErr] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const submit = async (e) => {
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+
+  const storedRole = useMemo(() => localStorage.getItem("role"), []);
+  const isLoggedIn = useMemo(() => !!localStorage.getItem("token"), []);
+
+  const redirectByRole = (role) => {
+    if (role === "SuperAdmin") return nav("/superadmin", { replace: true });
+    if (role === "Owner") return nav("/owner", { replace: true });
+    if (role === "Manager") return nav("/manager/products", { replace: true });
+    return nav("/", { replace: true }); // User / public
+  };
+
+  const saveSession = (data) => {
+    localStorage.setItem("token", data.token ?? data.Token ?? "");
+    localStorage.setItem("role", data.role ?? data.Role ?? "");
+    localStorage.setItem("email", data.email ?? data.Email ?? "");
+    localStorage.setItem("fullName", data.fullName ?? data.FullName ?? "");
+  };
+
+  const showApiError = (e) => {
+    console.error("AUTH ERROR:", e);
+    const status = e?.response?.status;
+    const data = e?.response?.data;
+    setErr(
+      `STATUS ${status}: ` +
+        (typeof data === "string" ? data : JSON.stringify(data, null, 2))
+    );
+  };
+
+  const onPasswordLogin = async (e) => {
     e.preventDefault();
     setErr("");
-    setLoading(true);
+    setMsg("");
+
+    const em = (email || "").trim().toLowerCase();
+    if (!em || !password) return setErr("Email and password are required.");
 
     try {
-      const res = await axios.post(`${API}/api/auth/login`, { email, password });
+      setLoading(true);
+      const r = await axios.post(`${API}/api/auth/login`, {
+        email: em,
+        password,
+      });
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
-      localStorage.setItem("fullName", res.data.fullName);
-      localStorage.setItem("email", res.data.email);
+      // backend returns: { token, fullName, email, role } (or PascalCase)
+      saveSession(r.data);
 
-      // ✅ redirect sipas role
-      if (res.data.role === "SuperAdmin") window.location.href = "/superadmin";
-      else if (res.data.role === "Owner") window.location.href = "/owner";
-      else window.location.href = "/"; // public
-
+      setMsg("Logged in ✅");
+      redirectByRole(r.data.role ?? r.data.Role);
     } catch (e2) {
-      const data = e2?.response?.data;
-      setErr(typeof data === "string" ? data : "Login failed");
+      showApiError(e2);
     } finally {
       setLoading(false);
     }
   };
 
+  const onGoogleSuccess = async (cred) => {
+    setErr("");
+    setMsg("");
+
+    try {
+      setLoading(true);
+
+      // Google returns { credential: <id_token> }
+      const idToken = cred?.credential;
+      if (!idToken) return setErr("Google credential missing.");
+
+      const r = await axios.post(`${API}/api/auth/google`, { idToken });
+
+      saveSession(r.data);
+
+      setMsg("Logged in with Google ✅");
+      redirectByRole(r.data.role ?? r.data.Role);
+    } catch (e2) {
+      showApiError(e2);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("email");
+    localStorage.removeItem("fullName");
+    nav("/login", { replace: true });
+  };
+
   return (
-    <div style={styles.viewport}>
-      <section style={styles.left}>
-        <div style={styles.brandRow}>
-          <div style={styles.logo}>STORE</div>
-          <div>
-            <h1 style={styles.h1}>Marketplace Platform</h1>
-            <p style={styles.p}>
-              SuperAdmin creates stores & owners. Owners add products. Customers browse stores.
-            </p>
-          </div>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <div style={styles.brand}>
+          <div style={styles.logo}>MyStore</div>
+          <div style={styles.subtitle}>Login to your account</div>
         </div>
 
-        <ul style={styles.features}>
-          <li>✔ SuperAdmin dashboard</li>
-          <li>✔ Owner dashboard</li>
-          <li>✔ Public stores page</li>
-          <li>✔ Secure JWT</li>
-        </ul>
-      </section>
+        {isLoggedIn && (
+          <div style={styles.loggedInBox}>
+            <div style={{ fontWeight: 800 }}>
+              You are already logged in as:{" "}
+              <span style={{ opacity: 0.85 }}>{storedRole || "—"}</span>
+            </div>
+            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+              <button
+                onClick={() => redirectByRole(storedRole)}
+                style={styles.btnPrimary}
+              >
+                Go to dashboard
+              </button>
+              <button onClick={logout} style={styles.btnGhost}>
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
 
-      <section style={styles.right}>
-        <form onSubmit={submit} style={styles.form}>
-          <h2 style={{ margin: 0 }}>Login</h2>
-          <p style={{ marginTop: 6, opacity: 0.8 }}>
-            Enter your credentials to continue
-          </p>
-
+        {/* Password login (admin/owner/manager) */}
+        <form onSubmit={onPasswordLogin} style={{ display: "grid", gap: 10 }}>
           <input
             style={styles.input}
             placeholder="Email"
@@ -71,112 +139,134 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
           />
-
           <input
             style={styles.input}
-            type="password"
             placeholder="Password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
           />
 
-          {err && <div style={styles.error}>{err}</div>}
-
-          <button type="submit" disabled={loading} style={styles.button}>
-            {loading ? "Logging in..." : "LOGIN"}
+          <button disabled={loading} style={styles.btnPrimary}>
+            {loading ? "Loading…" : "Login"}
           </button>
         </form>
-      </section>
+
+        <div style={styles.orRow}>
+          <div style={styles.line} />
+          <div style={styles.orText}>If you are a User</div>
+          <div style={styles.line} />
+        </div>
+
+        {/* Google login (user i thjeshtë) */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <GoogleLogin
+            onSuccess={onGoogleSuccess}
+            onError={() => setErr("Google login failed")}
+            useOneTap={false}
+          />
+        </div>
+
+        {msg && <div style={styles.success}>{msg}</div>}
+        {err && <pre style={styles.error}>{err}</pre>}
+
+        <div style={styles.footer}>
+          <Link to="/" style={styles.footerLink}>
+            ← Back to stores
+          </Link>
+          <span style={{ opacity: 0.6 }}>|</span>
+          <Link to="/register" style={styles.footerLink}>
+            Create account
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
 
 const styles = {
-  viewport: {
-    width: "100vw",
-    height: "100vh",
-    display: "grid",
-    gridTemplateColumns: "1.2fr 0.8fr",
-    background: "linear-gradient(120deg,#070b12,#0b1220)",
-    color: "#e9eefb",
-    fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
-  },
-  left: {
-    padding: "10vh 8vw",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "center",
-    gap: 26,
-  },
-  brandRow: {
-    display: "flex",
-    gap: 16,
-    alignItems: "center",
-  },
-  logo: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
+  page: {
+    minHeight: "100vh",
     display: "grid",
     placeItems: "center",
-    fontWeight: 900,
-    fontSize: 18,
-    background: "#e9eefb",
-    color: "#0b1220",
-    letterSpacing: 0.6,
+    background: "#0b1220",
+    padding: 24,
+    fontFamily: "Inter, system-ui, sans-serif",
   },
-  h1: { margin: 0, fontSize: 40, fontWeight: 900 },
-  p: { marginTop: 10, fontSize: 16, opacity: 0.85, maxWidth: 560 },
-  features: {
-    margin: 0,
-    paddingLeft: 18,
-    fontSize: 16,
-    lineHeight: 2,
-    opacity: 0.9,
-  },
-  right: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
+  card: {
+    width: "min(440px, 100%)",
     background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.10)",
+    borderRadius: 18,
+    padding: 18,
+    color: "#e9eefb",
   },
-  form: {
-    width: "min(460px, 92%)",
-    padding: 40,
-    background: "rgba(255,255,255,0.08)",
-    border: "1px solid rgba(255,255,255,0.12)",
-    borderRadius: 20,
+  brand: { textAlign: "center", marginBottom: 12 },
+  logo: { fontWeight: 900, fontSize: 22, letterSpacing: 0.3 },
+  subtitle: { opacity: 0.75, marginTop: 6, fontSize: 13 },
+
+  loggedInBox: {
+    border: "1px solid rgba(255,255,255,0.10)",
+    background: "rgba(255,255,255,0.03)",
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 12,
   },
+
   input: {
-    width: "100%",
-    padding: 14,
-    marginTop: 14,
+    padding: 12,
     borderRadius: 12,
-    border: "1px solid rgba(255,255,255,0.2)",
-    background: "rgba(255,255,255,0.05)",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.06)",
     color: "#e9eefb",
     outline: "none",
-    fontSize: 15,
   },
-  button: {
-    width: "100%",
-    marginTop: 18,
-    padding: 14,
+
+  btnPrimary: {
+    padding: 12,
     borderRadius: 12,
-    border: "none",
-    background: "#e9eefb",
-    color: "#070b12",
+    border: "1px solid rgba(255,255,255,0.16)",
+    background: "rgba(233,238,251,0.92)",
+    color: "#0b1220",
     fontWeight: 900,
     cursor: "pointer",
-    fontSize: 15,
   },
+  btnGhost: {
+    padding: 12,
+    borderRadius: 12,
+    border: "1px solid rgba(255,255,255,0.16)",
+    background: "transparent",
+    color: "#e9eefb",
+    fontWeight: 900,
+    cursor: "pointer",
+  },
+
+  orRow: {
+    display: "grid",
+    gridTemplateColumns: "1fr auto 1fr",
+    alignItems: "center",
+    gap: 10,
+    margin: "14px 0",
+    opacity: 0.75,
+  },
+  line: { height: 1, background: "rgba(255,255,255,0.18)" },
+  orText: { fontSize: 12, fontWeight: 800 },
+
+  success: { marginTop: 12, color: "#b6ffcf", fontWeight: 800 },
   error: {
     marginTop: 12,
-    padding: 10,
-    borderRadius: 10,
-    background: "rgba(255,0,0,0.20)",
-    color: "#ffd5d5",
-    fontWeight: 700,
+    color: "#ffb6b6",
+    fontWeight: 800,
+    whiteSpace: "pre-wrap",
   },
+
+  footer: {
+    display: "flex",
+    gap: 10,
+    justifyContent: "center",
+    marginTop: 14,
+    fontSize: 13,
+  },
+  footerLink: { color: "#cbd5f5", textDecoration: "none", fontWeight: 700 },
 };

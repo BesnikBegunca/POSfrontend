@@ -20,7 +20,10 @@ import OwnerStaffList from "./pages/Owner/OwnerStaffList";
 import OwnerSettings from "./pages/Owner/OwnerSettings";
 
 // MANAGER
-import ManagerProducts from "./pages/manager/ManagerProducts.jsx";
+import ManagerProducts from "./pages/manager/ManagerProducts";
+
+// USER
+import UserProfile from "./pages/user/UserProfile";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -32,7 +35,7 @@ function RoleRoute({ role, children }) {
   const storedRole = localStorage.getItem("role");
 
   if (!token) return <Navigate to="/login" replace />;
-  if (storedRole !== role) return <Navigate to="/" replace />; // ⬅️ jo login
+  if (storedRole !== role) return <Navigate to="/" replace />;
   return children;
 }
 
@@ -42,10 +45,21 @@ export default function App() {
       <Routes>
         {/* PUBLIC */}
         <Route path="/" element={<Stores />} />
-        <Route path="/store/:slug" element={<StorePage />} />
+        <Route path="/stores" element={<Stores />} />
+        <Route path="/store/:id" element={<StorePage />} />
 
         {/* AUTH */}
         <Route path="/login" element={<Login />} />
+
+        {/* USER PROFILE */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
 
         {/* MANAGER */}
         <Route
@@ -59,7 +73,7 @@ export default function App() {
           }
         />
 
-        {/* SUPERADMIN (dashboard layout) */}
+        {/* SUPERADMIN */}
         <Route
           path="/superadmin"
           element={
@@ -75,7 +89,7 @@ export default function App() {
           <Route path="stores" element={<SuperAdminStoresList />} />
         </Route>
 
-        {/* OWNER (dashboard layout) */}
+        {/* OWNER */}
         <Route
           path="/owner"
           element={
