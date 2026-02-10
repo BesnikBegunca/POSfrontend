@@ -1,5 +1,9 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+// AUTH
 import Login from "./pages/Login";
 
 // PUBLIC
@@ -7,9 +11,9 @@ import Stores from "./pages/public/Stores";
 import StorePage from "./pages/public/StorePage";
 
 // SUPERADMIN
+import SuperAdminLayout from "./pages/SuperAdmin/SuperAdminLayout";
 import SuperAdminHome from "./pages/SuperAdmin/SuperAdminHome";
 import SuperAdminStoresList from "./pages/SuperAdmin/SuperAdminStoresList";
-import SuperAdminLayout from "./pages/SuperAdmin/SuperAdminLayout";
 import CreateStore from "./pages/SuperAdmin/CreateStore";
 
 // OWNER
@@ -24,10 +28,21 @@ import ManagerProducts from "./pages/manager/ManagerProducts";
 
 // USER
 import UserProfile from "./pages/user/UserProfile";
+import CheckoutPage from "./pages/public/CheckoutPage";
+import PaymentPage from "./pages/public/PaymentPage";
+import OwnerPayments from "./pages/Owner/OwnerPayments";
+import StripeCheckout from "./components/StripeCheckout";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
+
+/* ===========================
+   ROUTE GUARDS
+=========================== */
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/login" replace />;
+  return children;
 }
 
 function RoleRoute({ role, children }) {
@@ -36,22 +51,31 @@ function RoleRoute({ role, children }) {
 
   if (!token) return <Navigate to="/login" replace />;
   if (storedRole !== role) return <Navigate to="/" replace />;
+
   return children;
 }
+
+/* ===========================
+   APP
+=========================== */
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* PUBLIC */}
+        {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Stores />} />
         <Route path="/stores" element={<Stores />} />
         <Route path="/store/:id" element={<StorePage />} />
+        <Route path="/checkout" element={<Elements stripe={stripePromise}><CheckoutPage /></Elements>} />
+        <Route path="/payment" element={<Elements stripe={stripePromise}><PaymentPage /></Elements>} />
+        <Route path="/stripe-checkout" element={<Elements stripe={stripePromise}><StripeCheckout /></Elements>} />
 
-        {/* AUTH */}
+
+        {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
 
-        {/* USER PROFILE */}
+        {/* ================= USER ================= */}
         <Route
           path="/profile"
           element={
@@ -61,7 +85,7 @@ export default function App() {
           }
         />
 
-        {/* MANAGER */}
+        {/* ================= MANAGER ================= */}
         <Route
           path="/manager/products"
           element={
@@ -73,7 +97,7 @@ export default function App() {
           }
         />
 
-        {/* SUPERADMIN */}
+        {/* ================= SUPERADMIN ================= */}
         <Route
           path="/superadmin"
           element={
@@ -85,11 +109,11 @@ export default function App() {
           }
         >
           <Route index element={<SuperAdminHome />} />
-          <Route path="stores/create" element={<CreateStore />} />
           <Route path="stores" element={<SuperAdminStoresList />} />
+          <Route path="stores/create" element={<CreateStore />} />
         </Route>
 
-        {/* OWNER */}
+        {/* ================= OWNER ================= */}
         <Route
           path="/owner"
           element={
@@ -101,12 +125,16 @@ export default function App() {
           }
         >
           <Route index element={<OwnerHome />} />
-          <Route path="staff/create" element={<OwnerCreateStaff />} />
+          <Route path="payments" element={<OwnerPayments />} />
           <Route path="staff" element={<OwnerStaffList />} />
+          <Route path="staff/create" element={<OwnerCreateStaff />} />
+          
+
           <Route path="settings" element={<OwnerSettings />} />
+
         </Route>
 
-        {/* FALLBACK */}
+        {/* ================= FALLBACK ================= */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

@@ -16,4 +16,24 @@ body,
 body {
   overflow: hidden; /* mos lejo scroll */
   background: #070b12;
+  font-size: 16px;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1025px) {
+  body {
+    font-size: 16px;
+  }
 }

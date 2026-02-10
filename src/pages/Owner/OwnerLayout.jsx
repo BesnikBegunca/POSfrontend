@@ -89,6 +89,7 @@ export default function OwnerLayout() {
             <Item to="/owner" label="🏠 Dashboard" />
             <Item to="/owner/staff/create" label="➕ Create Staff" />
             <Item to="/owner/staff" label="👥 Staff List" />
+            <Item to="/owner/payments" label="💳 Payments" />
             <Item to="/owner/settings" label="⚙️ Settings" />
           </div>
 

@@ -26,12 +26,32 @@ export default function Login() {
     return nav("/", { replace: true }); // User / public
   };
 
-  const saveSession = (data) => {
-    localStorage.setItem("token", data.token ?? data.Token ?? "");
-    localStorage.setItem("role", data.role ?? data.Role ?? "");
-    localStorage.setItem("email", data.email ?? data.Email ?? "");
-    localStorage.setItem("fullName", data.fullName ?? data.FullName ?? "");
-  };
+ const saveSession = (data) => {
+  localStorage.setItem("token", data.token ?? data.Token ?? "");
+  localStorage.setItem("role", data.role ?? data.Role ?? "");
+  localStorage.setItem("email", data.email ?? data.Email ?? "");
+  localStorage.setItem(
+    "fullName",
+    (data.fullName || data.name || data.FullName || data.Name) ?? ""
+  );
+
+  // ✅ SHTO KËTË:
+  const sid =
+  data.storeId ??
+  data.StoreId ??
+  data?.store?.id ??
+  data?.Store?.Id ??
+  data?.store?.Id ??
+  null;
+
+if (sid !== null && sid !== undefined) {
+  localStorage.setItem("storeId", String(sid));
+} else {
+  localStorage.removeItem("storeId"); // optional, pastrim
+}
+
+};
+
 
   const showApiError = (e) => {
     console.error("AUTH ERROR:", e);
@@ -94,13 +114,15 @@ export default function Login() {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("email");
-    localStorage.removeItem("fullName");
-    nav("/login", { replace: true });
-  };
+ const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("email");
+  localStorage.removeItem("fullName");
+  localStorage.removeItem("storeId"); // ✅
+  nav("/login", { replace: true });
+};
+
 
   return (
     <div style={styles.page}>
