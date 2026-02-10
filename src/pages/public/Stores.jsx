@@ -5,6 +5,9 @@ import UserMenu from "../../components/UserMenu";
 
 const API = "http://localhost:5083";
 
+// ✅ vendose nje foto te /public/hero.jpg
+const HERO_BG = "/hero.jpg";
+
 export default function Stores() {
   const [stores, setStores] = useState([]);
 
@@ -14,34 +17,114 @@ export default function Stores() {
 
   return (
     <div style={styles.page}>
-      {/* NAVBAR */}
-      <nav style={styles.navbar}>
-        <Link to="/" style={styles.logoLink}>
-          <div style={styles.logo}>MyStore</div>
-        </Link>
-
-        <div style={styles.navRight}>
-          <div style={styles.navLinks}>
-            <Link to="/" style={styles.navLink}>
-              Home
-            </Link>
-            <Link to="/stores" style={styles.navLink}>
-              Stores
-            </Link>
+      {/* TOP STRIP (si ne foto) */}
+      <div style={styles.topStrip}>
+        <div style={styles.topStripInner}>
+          <div style={styles.topLinks}>
+            <span style={styles.topLink}>Best Sellers</span>
+            <span style={styles.dot}>•</span>
+            <span style={styles.topLink}>Gift Ideas</span>
+            <span style={styles.dot}>•</span>
+            <span style={styles.topLink}>New Releases</span>
+            <span style={styles.dot}>•</span>
+            <span style={styles.topLink}>Today’s Deals</span>
+            <span style={styles.dot}>•</span>
+            <span style={styles.topLink}>Customer Service</span>
           </div>
 
-          <div style={styles.authBtns}>
-            <UserMenu/>
+          <div style={styles.topRight}>
+            <span style={styles.miniPill}>English</span>
+            <span style={styles.miniPill}>Help</span>
+          </div>
+        </div>
+      </div>
+
+      {/* NAVBAR */}
+      <nav style={styles.navbar}>
+        <div style={styles.navInner}>
+          <Link to="/" style={styles.logoLink}>
+            <div style={styles.logo}>MyStore</div>
+          </Link>
+
+          <div style={styles.navMid}>
+            <button style={styles.burger} aria-label="Menu">
+              <span style={styles.burgerLine} />
+              <span style={styles.burgerLine} />
+              <span style={styles.burgerLine} />
+            </button>
+
+            <select style={styles.categorySelect} defaultValue="all">
+              <option value="all">All Category</option>
+              <option value="fashion">Fashion</option>
+              <option value="electronics">Electronics</option>
+              <option value="home">Home</option>
+            </select>
+
+            <div style={styles.searchWrap}>
+              <input
+                style={styles.searchInput}
+                placeholder="Search this store..."
+              />
+              <button style={styles.searchBtn} aria-label="Search">
+                🔍
+              </button>
+            </div>
+          </div>
+
+          <div style={styles.navRight}>
+            <div style={styles.navLinks}>
+              <Link to="/" style={styles.navLink} className="nav-link">
+                Home
+              </Link>
+              <Link to="/stores" style={styles.navLink} className="nav-link">
+                Stores
+              </Link>
+            </div>
+
+            <div style={styles.cartWrap}>
+              <div style={styles.cartPill}>
+                🛒 <span style={styles.cartText}>Cart</span>
+                <span style={styles.cartBadge}>0</span>
+              </div>
+            </div>
+
+            <div style={styles.userWrap}>
+              <UserMenu />
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section style={styles.hero}>
-        <h1 style={styles.heroTitle}>Choose a Store</h1>
-        <p style={styles.heroSubtitle}>
-          Browse available stores and start shopping
-        </p>
+      {/* HERO (si ne foto: background image + overlay + CTA) */}
+      <header
+        style={{
+          ...styles.hero,
+          backgroundImage: `linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55)), url(${HERO_BG})`,
+        }}
+      >
+        <div style={styles.heroInner}>
+          <div style={styles.heroBrand}>MyStore</div>
+
+          <div style={styles.heroTitle}>GET START</div>
+          <div style={styles.heroTitle2}>YOUR FAVORITE SHOPPING</div>
+
+          <div style={styles.heroActions}>
+            <button style={styles.heroBtn}>BUY NOW</button>
+          </div>
+        </div>
+
+        {/* down arrow circles (si slider vibe) */}
+        <button style={{ ...styles.heroCircle, left: 18 }} aria-label="Prev">
+          ‹
+        </button>
+        <button style={{ ...styles.heroCircle, right: 18 }} aria-label="Next">
+          ›
+        </button>
+      </header>
+
+      {/* SECTION TITLE (si ne screenshot) */}
+      <section style={styles.sectionTitleWrap}>
+        <div style={styles.sectionTitle}>Man &amp; Woman Fashion</div>
       </section>
 
       {/* STORES GRID */}
@@ -54,20 +137,39 @@ export default function Stores() {
               style={{ textDecoration: "none" }}
             >
               <div style={styles.card} className="store-card">
-                <div style={styles.cardTitle}>{s.name}</div>
-                <div style={styles.cardSlug}>MAN{s.slug}</div>
-                <div style={styles.cardAction}>Visit Store</div>
+                <div style={styles.cardHeader}>
+                  <div style={styles.cardName}>{s.name}</div>
+                  <div style={styles.cardSub}>MAN{s.slug}</div>
+                </div>
+
+                <div style={styles.cardFooter}>
+                  <div style={styles.priceRow}>
+                    <span style={styles.priceLabel}>Price</span>
+                    <span style={styles.priceValue}>$ 30</span>
+                  </div>
+
+                  <div style={styles.cardCta}>
+                    Visit Store <span style={styles.arrow}>→</span>
+                  </div>
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Hover effect pa CSS file: inline onMouse */}
       <style>{`
-        .store-card:hover {
+        .store-card:hover{
           transform: translateY(-4px);
-          box-shadow: 0 16px 40px rgba(0,0,0,.10);
+          box-shadow: 0 18px 50px rgba(0,0,0,.12);
+          border-color: rgba(0,0,0,.10);
+        }
+        .store-card:active{
+          transform: translateY(-2px);
+        }
+        .nav-link:hover{
+          opacity:.95;
+          text-decoration: underline;
         }
       `}</style>
     </div>
@@ -79,127 +181,320 @@ export default function Stores() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f8fafc",
+    background: "#f3f4f6",
     fontFamily: "Inter, system-ui, sans-serif",
+  },
+
+  /* TOP STRIP */
+  topStrip: {
+    background: "#111827",
+    color: "rgba(255,255,255,.85)",
+    fontSize: 12,
+  },
+  topStripInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "10px 18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  topLinks: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flexWrap: "wrap",
+  },
+  topLink: { cursor: "default", whiteSpace: "nowrap" },
+  dot: { opacity: 0.5 },
+  topRight: { display: "flex", gap: 8, alignItems: "center" },
+  miniPill: {
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(255,255,255,.08)",
+    border: "1px solid rgba(255,255,255,.10)",
+    whiteSpace: "nowrap",
   },
 
   /* NAVBAR */
   navbar: {
-    height: 64,
-    padding: "0 32px",
-    background: "#0f172a",
-    color: "#fff",
+    background: "#f59e0b", // gold like screenshot
+    borderBottom: "1px solid rgba(0,0,0,.08)",
+  },
+  navInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "14px 18px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
+    gap: 14,
   },
   logoLink: { textDecoration: "none", color: "#fff" },
   logo: {
     fontWeight: 900,
-    fontSize: 20,
+    fontSize: 22,
     letterSpacing: 0.2,
+    color: "#fff",
+    textShadow: "0 2px 10px rgba(0,0,0,.15)",
+    whiteSpace: "nowrap",
+  },
+
+  navMid: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
+    justifyContent: "center",
+    minWidth: 280,
+  },
+
+  burger: {
+    width: 42,
+    height: 40,
+    borderRadius: 10,
+    border: "1px solid rgba(0,0,0,.12)",
+    background: "rgba(255,255,255,.20)",
+    display: "grid",
+    placeItems: "center",
+    cursor: "pointer",
+  },
+  burgerLine: {
+    display: "block",
+    width: 18,
+    height: 2,
+    background: "rgba(17,24,39,.9)",
+    borderRadius: 999,
+    margin: 2,
+  },
+
+  categorySelect: {
+    height: 40,
+    borderRadius: 10,
+    border: "1px solid rgba(0,0,0,.12)",
+    padding: "0 10px",
+    background: "rgba(255,255,255,.92)",
+    fontWeight: 700,
+    fontSize: 13,
+    outline: "none",
+    minWidth: 140,
+  },
+
+  searchWrap: {
+    display: "flex",
+    alignItems: "center",
+    height: 40,
+    borderRadius: 10,
+    overflow: "hidden",
+    border: "1px solid rgba(0,0,0,.12)",
+    background: "rgba(255,255,255,.92)",
+    width: "min(520px, 100%)",
+  },
+  searchInput: {
+    flex: 1,
+    height: "100%",
+    border: "none",
+    outline: "none",
+    padding: "0 12px",
+    fontSize: 13,
+    background: "transparent",
+  },
+  searchBtn: {
+    height: "100%",
+    width: 44,
+    border: "none",
+    cursor: "pointer",
+    background: "#ef4444",
+    color: "#fff",
+    fontSize: 14,
   },
 
   navRight: {
     display: "flex",
     alignItems: "center",
-    gap: 18,
+    gap: 12,
   },
-
   navLinks: {
     display: "flex",
-    gap: 18,
+    gap: 12,
     alignItems: "center",
   },
   navLink: {
-    color: "#cbd5f5",
+    color: "rgba(17,24,39,.90)",
     textDecoration: "none",
-    fontWeight: 600,
-    fontSize: 14,
+    fontWeight: 900,
+    fontSize: 13,
+    padding: "6px 8px",
+    borderRadius: 10,
+    background: "rgba(255,255,255,.18)",
+    border: "1px solid rgba(0,0,0,.10)",
+    whiteSpace: "nowrap",
   },
 
-  /* AUTH BUTTONS */
-  authBtns: {
-    display: "flex",
-    gap: 10,
-    alignItems: "center",
-  },
-  btn: {
-    textDecoration: "none",
-    fontWeight: 700,
-    fontSize: 14,
-    padding: "9px 14px",
-    borderRadius: 12,
+  cartWrap: { display: "flex", alignItems: "center" },
+  cartPill: {
+    height: 40,
+    padding: "0 12px",
+    borderRadius: 999,
     display: "inline-flex",
     alignItems: "center",
-    justifyContent: "center",
-    transition: "transform .15s ease, opacity .15s ease",
+    gap: 8,
+    background: "rgba(255,255,255,.22)",
+    border: "1px solid rgba(0,0,0,.12)",
+    fontWeight: 900,
+    color: "rgba(17,24,39,.92)",
+    whiteSpace: "nowrap",
   },
-  btnGhost: {
-    color: "#e2e8f0",
-    border: "1px solid rgba(226,232,240,.25)",
-    background: "transparent",
+  cartText: { fontSize: 13 },
+  cartBadge: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: 999,
+    background: "#111827",
+    color: "#fff",
+    display: "grid",
+    placeItems: "center",
+    fontSize: 12,
+    fontWeight: 900,
   },
-  btnPrimary: {
-    color: "#0b1220",
-    background: "#ffffff",
-    border: "1px solid rgba(255,255,255,.5)",
-  },
+  userWrap: { display: "flex", alignItems: "center" },
 
   /* HERO */
   hero: {
-    padding: "60px 24px 40px",
+    height: 360,
+    position: "relative",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "grid",
+    placeItems: "center",
+  },
+  heroInner: {
     textAlign: "center",
+    color: "#fff",
+    padding: "0 18px",
+  },
+  heroBrand: {
+    fontWeight: 900,
+    fontSize: 20,
+    letterSpacing: 0.2,
+    opacity: 0.95,
+    marginBottom: 18,
+    textShadow: "0 6px 18px rgba(0,0,0,.35)",
   },
   heroTitle: {
-    fontSize: 36,
     fontWeight: 900,
-    marginBottom: 12,
-    color: "#020617",
+    fontSize: 44,
+    lineHeight: 1,
+    textShadow: "0 10px 26px rgba(0,0,0,.35)",
   },
-  heroSubtitle: {
-    fontSize: 16,
-    color: "#475569",
+  heroTitle2: {
+    marginTop: 10,
+    fontWeight: 900,
+    fontSize: 28,
+    textShadow: "0 10px 26px rgba(0,0,0,.35)",
+  },
+  heroActions: { marginTop: 22 },
+  heroBtn: {
+    border: "none",
+    cursor: "pointer",
+    padding: "10px 18px",
+    borderRadius: 10,
+    background: "rgba(17,24,39,.92)",
+    color: "#fff",
+    fontWeight: 900,
+    letterSpacing: 0.4,
+    boxShadow: "0 14px 30px rgba(0,0,0,.25)",
+  },
+  heroCircle: {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: 42,
+    height: 42,
+    borderRadius: 999,
+    border: "1px solid rgba(255,255,255,.40)",
+    background: "rgba(255,255,255,.15)",
+    color: "#fff",
+    display: "grid",
+    placeItems: "center",
+    fontSize: 22,
+    cursor: "pointer",
   },
 
-  /* CONTENT */
+  /* Section title */
+  sectionTitleWrap: {
+    background: "#fff",
+    borderBottom: "1px solid rgba(0,0,0,.06)",
+  },
+  sectionTitle: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "18px 18px",
+    fontWeight: 900,
+    fontSize: 22,
+    color: "rgba(17,24,39,.92)",
+  },
+
+  /* GRID */
   container: {
     maxWidth: 1200,
     margin: "0 auto",
-    padding: "0 24px 60px",
+    padding: "22px 18px 60px",
   },
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-    gap: 24,
+    gap: 18,
   },
 
   /* CARD */
   card: {
     background: "#fff",
-    borderRadius: 18,
-    padding: 24,
-    boxShadow: "0 10px 30px rgba(0,0,0,.06)",
-    transition: "transform .25s ease, box-shadow .25s ease",
-    cursor: "pointer",
+    borderRadius: 14,
+    border: "1px solid rgba(0,0,0,.06)",
+    boxShadow: "0 10px 28px rgba(0,0,0,.06)",
+    overflow: "hidden",
+    transition: "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 800,
-    color: "#020617",
+  cardHeader: {
+    padding: 18,
+    textAlign: "center",
+  },
+  cardName: {
+    fontWeight: 900,
+    fontSize: 15,
+    color: "rgba(17,24,39,.92)",
     marginBottom: 6,
   },
-  cardSlug: {
-    fontSize: 13,
-    color: "#64748b",
-    marginBottom: 16,
-  },
-  cardAction: {
-    fontSize: 14,
+  cardSub: {
+    fontSize: 12,
+    color: "rgba(107,114,128,.95)",
     fontWeight: 700,
-    color: "#2563eb",
   },
+  cardFooter: {
+    padding: 16,
+    borderTop: "1px solid rgba(0,0,0,.06)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  priceRow: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 8,
+  },
+  priceLabel: { fontSize: 12, color: "rgba(107,114,128,.9)", fontWeight: 800 },
+  priceValue: { fontSize: 14, color: "#ef4444", fontWeight: 900 },
+  cardCta: {
+    fontSize: 13,
+    fontWeight: 900,
+    color: "rgba(37,99,235,.98)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+  },
+  arrow: { transform: "translateY(-.5px)" },
 };
