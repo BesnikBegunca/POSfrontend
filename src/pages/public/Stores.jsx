@@ -137,21 +137,11 @@ export default function Stores() {
               style={{ textDecoration: "none" }}
             >
               <div style={styles.card} className="store-card">
-                <div style={styles.cardHeader}>
-                  <div style={styles.cardName}>{s.name}</div>
-                  <div style={styles.cardSub}>MAN{s.slug}</div>
-                </div>
-
-                <div style={styles.cardFooter}>
-                  <div style={styles.priceRow}>
-                    <span style={styles.priceLabel}>Price</span>
-                    <span style={styles.priceValue}>$ 30</span>
-                  </div>
-
-                  <div style={styles.cardCta}>
-                    Visit Store <span style={styles.arrow}>→</span>
-                  </div>
-                </div>
+                <img
+                  src={`/assets/logo/${s.name.toLowerCase().replace(/[^a-z]/g, "")}.png`}
+                  alt={s.name}
+                  style={styles.logoImg}
+                />
               </div>
             </Link>
           ))}
@@ -183,6 +173,7 @@ const styles = {
     minHeight: "100vh",
     background: "#f3f4f6",
     fontFamily: "Inter, system-ui, sans-serif",
+    overflow: "auto",
   },
 
   /* TOP STRIP */
@@ -455,7 +446,18 @@ const styles = {
     border: "1px solid rgba(0,0,0,.06)",
     boxShadow: "0 10px 28px rgba(0,0,0,.06)",
     overflow: "hidden",
-    transition: "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
+    transition:
+      "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 18,
+    height: 180,
+  },
+  logoImg: {
+    maxWidth: "100%",
+    maxHeight: "100%",
+    objectFit: "contain",
   },
   cardHeader: {
     padding: 18,
