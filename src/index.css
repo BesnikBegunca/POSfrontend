@@ -14,7 +14,7 @@ body,
 }
 
 body {
-  overflow: hidden; /* mos lejo scroll */
+  overflow-y: auto; /* allow vertical scroll */
   background: #070b12;
   font-size: 16px;
 }

@@ -295,9 +295,13 @@ export default function StorePage() {
                 <div key={p.id} style={styles.card}>
                   <div style={styles.cardMedia}>
                     <img
-                      src={p.imageUrl ? `${API}${p.imageUrl}` : "https://via.placeholder.com/600x400?text=No+Image"}
+                      src={p.imageUrl ? `${API}${p.imageUrl}` : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%239ca3af' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"}
                       alt={p.name}
                       style={styles.cardImg}
+                      onError={(e) => {
+                        console.error(`Image failed to load for product "${p.name}". URL was: ${p.imageUrl || "(empty)"}`);
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%23d1d5db' text-anchor='middle' dy='.3em'%3EImage Not Found%3C/text%3E%3C/svg%3E";
+                      }}
                     />
                     {d > 0 && <div style={styles.badgeDiscount}>-{d}%</div>}
                   </div>
