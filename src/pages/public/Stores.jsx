@@ -61,10 +61,7 @@ export default function Stores() {
             </select>
 
             <div style={styles.searchWrap}>
-              <input
-                style={styles.searchInput}
-                placeholder="Search this store..."
-              />
+              <input style={styles.searchInput} placeholder="Search this store..." />
               <button style={styles.searchBtn} aria-label="Search">
                 🔍
               </button>
@@ -122,29 +119,31 @@ export default function Stores() {
         </button>
       </header>
 
-      {/* SECTION TITLE (si ne screenshot) */}
-      <section style={styles.sectionTitleWrap}>
-        <div style={styles.sectionTitle}>Man &amp; Woman Fashion</div>
-      </section>
-
       {/* STORES GRID */}
-      <section style={styles.container}>
-        <div style={styles.grid}>
-          {stores.map((s) => (
-            <Link
-              key={s.id}
-              to={`/store/${s.id}`}
-              style={{ textDecoration: "none" }}
-            >
-              <div style={styles.card} className="store-card">
-                <img
-                  src={`/assets/logo/${s.name.toLowerCase().replace(/[^a-z]/g, "")}.png`}
-                  alt={s.name}
-                  style={styles.logoImg}
-                />
-              </div>
-            </Link>
-          ))}
+      <section style={styles.sectionTitleWrap}>
+        <div style={styles.container}>
+          <div style={styles.grid}>
+            {stores.map((s) => {
+              const imgPath = s.image ?? s.Image; // "/uploads/stores/xxx.jpg"
+              const imgSrc = imgPath ? `${API}${imgPath}` : "/assets/logo/default-store.png";
+
+              return (
+                <Link key={s.id} to={`/store/${s.id}`} style={{ textDecoration: "none" }}>
+                  <div style={styles.card} className="store-card">
+                    <img
+                      src={imgSrc}
+                      alt={s.name}
+                      style={styles.logoImg}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null; // ✅ stop blink loop
+                        e.currentTarget.src = "/assets/logo/default-store.png";
+                      }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
@@ -210,7 +209,7 @@ const styles = {
 
   /* NAVBAR */
   navbar: {
-    background: "#f59e0b", // gold like screenshot
+    background: "#f59e0b",
     borderBottom: "1px solid rgba(0,0,0,.08)",
   },
   navInner: {
@@ -413,18 +412,10 @@ const styles = {
     cursor: "pointer",
   },
 
-  /* Section title */
+  /* Section title wrap */
   sectionTitleWrap: {
     background: "#fff",
     borderBottom: "1px solid rgba(0,0,0,.06)",
-  },
-  sectionTitle: {
-    maxWidth: 1200,
-    margin: "0 auto",
-    padding: "18px 18px",
-    fontWeight: 900,
-    fontSize: 22,
-    color: "rgba(17,24,39,.92)",
   },
 
   /* GRID */
@@ -446,8 +437,7 @@ const styles = {
     border: "1px solid rgba(0,0,0,.06)",
     boxShadow: "0 10px 28px rgba(0,0,0,.06)",
     overflow: "hidden",
-    transition:
-      "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
+    transition: "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -455,48 +445,8 @@ const styles = {
     height: 180,
   },
   logoImg: {
-    maxWidth: "100%",
-    maxHeight: "100%",
+    width: "100%",
+    height: "100%",
     objectFit: "contain",
   },
-  cardHeader: {
-    padding: 18,
-    textAlign: "center",
-  },
-  cardName: {
-    fontWeight: 900,
-    fontSize: 15,
-    color: "rgba(17,24,39,.92)",
-    marginBottom: 6,
-  },
-  cardSub: {
-    fontSize: 12,
-    color: "rgba(107,114,128,.95)",
-    fontWeight: 700,
-  },
-  cardFooter: {
-    padding: 16,
-    borderTop: "1px solid rgba(0,0,0,.06)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-  priceRow: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: 8,
-  },
-  priceLabel: { fontSize: 12, color: "rgba(107,114,128,.9)", fontWeight: 800 },
-  priceValue: { fontSize: 14, color: "#ef4444", fontWeight: 900 },
-  cardCta: {
-    fontSize: 13,
-    fontWeight: 900,
-    color: "rgba(37,99,235,.98)",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    whiteSpace: "nowrap",
-  },
-  arrow: { transform: "translateY(-.5px)" },
 };
