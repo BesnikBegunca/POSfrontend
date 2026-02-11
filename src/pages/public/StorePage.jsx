@@ -36,17 +36,6 @@ const Icon = {
       />
     </svg>
   ),
-  X: ({ size = 18 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M18 6 6 18M6 6l12 12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
   Home: ({ size = 16 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path
@@ -95,7 +84,6 @@ const Icon = {
 function safeGetSession() {
   const token = localStorage.getItem("token");
   if (!token) return { token: null, me: null };
-
   const fullName = localStorage.getItem("fullName") || "";
   const email = localStorage.getItem("email") || "";
   return { token, me: { fullName, email } };
@@ -121,7 +109,6 @@ export default function StorePage() {
   });
 
   const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
 
   useEffect(() => {
     (async () => {
@@ -153,8 +140,6 @@ export default function StorePage() {
         setMe(nm);
         if (nm.fullName) localStorage.setItem("fullName", nm.fullName);
         if (nm.email) localStorage.setItem("email", nm.email);
-
-
       } catch (error) {
         const status = error?.response?.status;
         if (status === 401) {
@@ -220,146 +205,179 @@ export default function StorePage() {
 
   const cartCount = useMemo(() => cart.reduce((s, x) => s + (x.qty || 0), 0), [cart]);
 
-
-
   return (
     <div style={styles.page}>
-      {/* NAVBAR */}
-      <nav style={styles.navbar}>
-        <Link to="/" style={styles.logoLink}>
-          <div style={styles.logo}>
-            <span style={styles.logoDot} />
-            MyStore
-          </div>
-        </Link>
-
-        <div style={styles.navRight}>
-          <div style={styles.navLinks}>
-            <Link to="/" style={styles.navLink}>
-              <span style={styles.navIcon}><Icon.Home /></span>
+      {/* TOP STRIP (same vibe as Stores) */}
+      <div style={styles.topStrip}>
+        <div style={styles.topStripInner}>
+          <div style={styles.topLeft}>
+            <Link to="/" style={styles.topLink}>
               Home
             </Link>
-            <Link to="/stores" style={styles.navLink}>
-              <span style={styles.navIcon}><Icon.Store /></span>
+            <span style={styles.dot}>•</span>
+            <Link to="/stores" style={styles.topLink}>
               Stores
             </Link>
+            <span style={styles.dot}>•</span>
+            <span style={{ opacity: 0.9 }}>{store?.name ?? "Store"}</span>
           </div>
-
-          <div style={styles.cartPill} title="Cart (later)">
-            <Icon.Cart />
-            <b style={{ marginLeft: 8 }}>{cartCount}</b>
-          </div>
-
-          <div style={styles.authBtns}>
-            <UserMenu />
-          </div>
-        </div>
-      </nav>
-
-      <div style={styles.body}>
-        <div style={styles.container}>
-          <div style={styles.headerRow}>
-            <div>
-              <h1 style={styles.h1}>{store?.name ?? "Store"}</h1>
-              <div style={styles.subtle}>Browse products and order instantly with “Buy now”.</div>
-            </div>
-
-            <div style={styles.userChip}>
-              {meLoading ? (
-                <span style={{ opacity: 0.75, fontSize: 13 }}>Checking session…</span>
-              ) : me?.email || me?.fullName ? (
-                <>
-                  <span style={styles.userDot} />
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.1 }}>
-                      {me.fullName || "User"}
-                    </span>
-                    <span style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.1 }}>
-                      {me.email || ""}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <span style={{ opacity: 0.75, fontSize: 13 }}>Not logged in</span>
-              )}
-            </div>
-          </div>
-
-          <div style={styles.grid}>
-            {products.map((p) => {
-              const pr = Number(p.price || 0);
-              const d = Number(p.discountPercent || 0);
-              const fp = finalPrice(p);
-
-              return (
-                <div key={p.id} style={styles.card}>
-                  <div style={styles.cardMedia}>
-                    <img
-                      src={p.imageUrl ? `${API}${p.imageUrl}` : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%239ca3af' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"}
-                      alt={p.name}
-                      style={styles.cardImg}
-                      onError={(e) => {
-                        console.error(`Image failed to load for product "${p.name}". URL was: ${p.imageUrl || "(empty)"}`);
-                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%23d1d5db' text-anchor='middle' dy='.3em'%3EImage Not Found%3C/text%3E%3C/svg%3E";
-                      }}
-                    />
-                    {d > 0 && <div style={styles.badgeDiscount}>-{d}%</div>}
-                  </div>
-
-                  <div style={styles.cardBody}>
-                    <div style={styles.cardTitle}>{p.name}</div>
-                    <div style={styles.cardDesc}>{p.description || "—"}</div>
-
-                    <div style={styles.priceRow}>
-                      <div style={styles.price}>
-                        €{fp.toFixed(2)}
-                        {d > 0 && <span style={styles.priceStrike}>€{pr.toFixed(2)}</span>}
-                      </div>
-                      <div style={styles.stock}>
-                        Stock: <b>{p.quantity}</b>
-                      </div>
-                    </div>
-
-                    <div style={styles.actionsRow}>
-                      <button onClick={() => openBuy(p)} style={styles.buyBtn}>
-                        <span style={styles.btnIcon}><Icon.Bolt /></span>
-                        Buy now
-                      </button>
-
-                      <button onClick={() => addToCart(p)} style={styles.cartBtn}>
-                        <span style={styles.btnIcon}><Icon.Cart /></span>
-                        Add to cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div style={styles.topRight}>
+            <span style={styles.miniPill}>Help</span>
+            <span style={styles.miniPill}>English</span>
           </div>
         </div>
       </div>
 
+      {/* NAVBAR (yellow like Stores) */}
+      <nav style={styles.navbar}>
+        <div style={styles.navInner}>
+          <Link to="/" style={styles.logoLink}>
+            <div style={styles.logo}>MyStore</div>
+          </Link>
 
+          <div style={styles.navRight}>
+            <div style={styles.navLinks}>
+              <Link to="/" style={styles.navBtn}>
+                <span style={styles.navIcon}>
+                  <Icon.Home />
+                </span>
+                Home
+              </Link>
+              <Link to="/stores" style={styles.navBtn}>
+                <span style={styles.navIcon}>
+                  <Icon.Store />
+                </span>
+                Stores
+              </Link>
+            </div>
+
+            <div style={styles.cartPill} title="Cart (later)">
+              <Icon.Cart />
+              <span style={styles.cartBadge}>{cartCount}</span>
+            </div>
+
+            <div style={styles.userWrap}>
+              <UserMenu />
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* HEADER */}
+      <div style={styles.container}>
+        <div style={styles.headerRow}>
+          <div>
+            <h1 style={styles.h1}>{store?.name ?? "Store"}</h1>
+            <div style={styles.subtle}>Products</div>
+          </div>
+
+          <div style={styles.userChip}>
+            {meLoading ? (
+              <span style={styles.userMuted}>Checking session…</span>
+            ) : me?.email || me?.fullName ? (
+              <>
+                <span style={styles.userDot} />
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <span style={styles.userName}>{me.fullName || "User"}</span>
+                  <span style={styles.userEmail}>{me.email || ""}</span>
+                </div>
+              </>
+            ) : (
+              <span style={styles.userMuted}>Not logged in</span>
+            )}
+          </div>
+        </div>
+
+        {/* PRODUCTS GRID */}
+        <div style={styles.grid}>
+          {products.map((p) => {
+            const pr = Number(p.price || 0);
+            const d = Number(p.discountPercent || 0);
+            const fp = finalPrice(p);
+
+            const imgSrc = p.imageUrl ? `${API}${p.imageUrl}` : null;
+
+            return (
+              <div key={p.id} style={styles.card} className="p-card">
+                <div style={styles.media}>
+                  <img
+                    src={
+                      imgSrc ||
+                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23F1F5F9'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%2394A3B8' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"
+                    }
+                    alt={p.name}
+                    style={styles.img}
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src =
+                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23F1F5F9'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%2394A3B8' text-anchor='middle' dy='.3em'%3EImage Not Found%3C/text%3E%3C/svg%3E";
+                    }}
+                  />
+                  {d > 0 && <div style={styles.badge}>-{d}%</div>}
+                </div>
+
+                <div style={styles.body}>
+                  <div style={styles.titleRow}>
+                    <div style={styles.title}>{p.name}</div>
+                    <div style={styles.priceTag}>€{fp.toFixed(2)}</div>
+                  </div>
+
+                  <div style={styles.desc}>{p.description || "—"}</div>
+
+                  <div style={styles.metaRow}>
+                    <div style={styles.stock}>
+                      Stock: <b>{p.quantity}</b>
+                    </div>
+                    {d > 0 && <div style={styles.strike}>€{pr.toFixed(2)}</div>}
+                  </div>
+
+                  <div style={styles.actions}>
+                    <button
+                      onClick={() => openBuy(p)}
+                      style={{
+                        ...styles.buyBtn,
+                        ...(Number(p.quantity || 0) <= 0 ? styles.btnDisabled : {}),
+                      }}
+                      disabled={Number(p.quantity || 0) <= 0}
+                    >
+                      <span style={styles.btnIcon}>
+                        <Icon.Bolt />
+                      </span>
+                      Buy
+                    </button>
+
+                    <button
+                      onClick={() => addToCart(p)}
+                      style={{
+                        ...styles.cartBtn,
+                        ...(Number(p.quantity || 0) <= 0 ? styles.btnDisabledOutline : {}),
+                      }}
+                      disabled={Number(p.quantity || 0) <= 0}
+                    >
+                      <span style={styles.btnIcon}>
+                        <Icon.Cart />
+                      </span>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <style>{`
+        .p-card{
+          transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .p-card:hover{
+          transform: translateY(-5px);
+          box-shadow: 0 22px 60px rgba(15,23,42,.10);
+          border-color: rgba(15,23,42,.14);
+        }
+      `}</style>
     </div>
-  );
-}
-
-function Field({ label, value, onChange, type = "text", readOnly = false }) {
-  return (
-    <label style={styles.field}>
-      <div style={styles.fieldLabel}>{label}</div>
-      <input
-        type={type}
-        value={value ?? ""}
-        onChange={readOnly ? undefined : (e) => onChange(e.target.value)}
-        readOnly={readOnly}
-        disabled={readOnly}
-        style={{
-          ...styles.input,
-          ...(readOnly ? styles.inputReadOnly : {}),
-        }}
-      />
-    </label>
   );
 }
 
@@ -367,99 +385,116 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#0b1220",
+    background: "#F6F6F2",
     fontFamily: "Inter, system-ui, sans-serif",
-    color: "#0f172a",
+    color: "#0F172A",
   },
 
-  navbar: {
-    height: 68,
-    padding: "0 clamp(16px, 4vw, 28px)",
-    background: "rgba(11,18,32,.9)",
-    borderBottom: "1px solid rgba(148,163,184,.18)",
-    color: "#fff",
+  /* TOP STRIP */
+  topStrip: {
+    background: "#111827",
+    color: "rgba(255,255,255,.85)",
+    fontSize: 12,
+  },
+  topStripInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "10px 18px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
-    backdropFilter: "blur(10px)",
+    gap: 12,
+  },
+  topLeft: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  topLink: { color: "rgba(255,255,255,.88)", textDecoration: "none", fontWeight: 700 },
+  dot: { opacity: 0.5 },
+  topRight: { display: "flex", gap: 8, alignItems: "center" },
+  miniPill: {
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(255,255,255,.08)",
+    border: "1px solid rgba(255,255,255,.10)",
+    whiteSpace: "nowrap",
   },
 
-  logoLink: { textDecoration: "none", color: "#fff" },
+  /* NAVBAR (yellow like Stores) */
+  navbar: {
+    background: "#F2D34B",
+    borderBottom: "1px solid rgba(0,0,0,.08)",
+  },
+  navInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "14px 18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 14,
+  },
+  logoLink: { textDecoration: "none", color: "#0B0F19" },
   logo: {
+    fontWeight: 900,
+    fontSize: 22,
+    letterSpacing: 0.2,
+    color: "#0B0F19",
+    whiteSpace: "nowrap",
+  },
+
+  navRight: { display: "flex", alignItems: "center", gap: 12 },
+  navLinks: { display: "flex", gap: 10, alignItems: "center" },
+  navBtn: {
+    color: "rgba(15,23,42,.90)",
+    textDecoration: "none",
+    fontWeight: 900,
+    fontSize: 13,
+    padding: "8px 10px",
+    borderRadius: 12,
+    background: "rgba(255,255,255,.55)",
+    border: "1px solid rgba(0,0,0,.10)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+  },
+  navIcon: { width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center" },
+
+  cartPill: {
+    height: 40,
+    padding: "0 12px",
+    borderRadius: 999,
     display: "inline-flex",
     alignItems: "center",
     gap: 10,
-    fontWeight: 950,
-    fontSize: 18,
-    letterSpacing: 0.2,
-  },
-  logoDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    background: "linear-gradient(135deg, #22c55e, #60a5fa)",
-    boxShadow: "0 10px 18px rgba(34,197,94,.25)",
-  },
-
-  navRight: { display: "flex", alignItems: "center", gap: 14 },
-  navLinks: { display: "flex", gap: 10, alignItems: "center" },
-
-  navLink: {
-    color: "rgba(226,232,240,.9)",
-    textDecoration: "none",
-    fontWeight: 800,
-    fontSize: 13,
-    padding: "10px 12px",
-    borderRadius: 12,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    border: "1px solid transparent",
-  },
-  navIcon: {
-    width: 18,
-    height: 18,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    opacity: 0.95,
-  },
-
-  cartPill: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "10px 12px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,.06)",
-    border: "1px solid rgba(148,163,184,.22)",
-    fontSize: 13,
+    background: "rgba(255,255,255,.60)",
+    border: "1px solid rgba(0,0,0,.12)",
     fontWeight: 900,
-    color: "#e2e8f0",
+    color: "rgba(15,23,42,.92)",
+    whiteSpace: "nowrap",
   },
-
-  authBtns: { display: "flex", gap: 10, alignItems: "center" },
-
-  body: {
-    minHeight: "calc(100vh - 68px)",
-    background:
-      "radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,.22), transparent 60%), radial-gradient(900px 500px at 85% 0%, rgba(34,197,94,.18), transparent 55%), #f8fafc",
-    padding: 24,
+  cartBadge: {
+    minWidth: 22,
+    height: 22,
+    borderRadius: 999,
+    background: "#0B0F19",
+    color: "#fff",
+    display: "grid",
+    placeItems: "center",
+    fontSize: 12,
+    fontWeight: 900,
   },
+  userWrap: { display: "flex", alignItems: "center" },
 
-  container: { maxWidth: 1200, margin: "0 auto" },
+  /* BODY */
+  container: { maxWidth: 1200, margin: "0 auto", padding: "22px 18px 60px" },
 
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-end",
     gap: 16,
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  h1: { margin: 0, fontSize: 28, letterSpacing: -0.2, color: "#0f172a" },
+  h1: { margin: 0, fontSize: 28, letterSpacing: -0.3, color: "#0B0F19" },
   subtle: { marginTop: 6, fontSize: 13, opacity: 0.72 },
 
   userChip: {
@@ -468,86 +503,72 @@ const styles = {
     gap: 10,
     padding: "10px 12px",
     borderRadius: 14,
-    background: "rgba(255,255,255,.75)",
-    border: "1px solid rgba(148,163,184,.35)",
-    boxShadow: "0 12px 30px rgba(2,6,23,.06)",
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.10)",
     minWidth: 220,
     justifyContent: "center",
   },
-  userDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    background: "#22c55e",
-    boxShadow: "0 10px 18px rgba(34,197,94,.2)",
-  },
+  userDot: { width: 10, height: 10, borderRadius: 999, background: "#22c55e" },
+  userName: { fontWeight: 900, fontSize: 12, lineHeight: 1.1 },
+  userEmail: { fontSize: 12, opacity: 0.7, lineHeight: 1.1 },
+  userMuted: { opacity: 0.75, fontSize: 13 },
 
+  /* GRID */
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
     gap: 18,
-    marginTop: 18,
+    marginTop: 16,
   },
 
+  /* CARD */
   card: {
-    background: "rgba(255,255,255,.85)",
+    background: "#FFFFFF",
     borderRadius: 18,
+    border: "1px solid rgba(15,23,42,.08)",
     overflow: "hidden",
-    border: "1px solid rgba(148,163,184,.35)",
-    boxShadow: "0 16px 50px rgba(2,6,23,.08)",
-    display: "flex",
-    flexDirection: "column",
   },
-  cardMedia: { position: "relative" },
-  cardImg: { width: "100%", height: 175, objectFit: "cover", display: "block" },
-
-  badgeDiscount: {
+  media: { position: "relative", background: "#F7F7F4" },
+  img: { width: "100%", height: 220, objectFit: "cover", display: "block" },
+  badge: {
     position: "absolute",
     top: 12,
     left: 12,
-    background: "rgba(15,23,42,.92)",
+    background: "#0B0F19",
     color: "#fff",
-    padding: "6px 10px",
+    padding: "7px 10px",
     borderRadius: 999,
     fontWeight: 950,
     fontSize: 12,
-    border: "1px solid rgba(255,255,255,.18)",
+    border: "1px solid rgba(255,255,255,.16)",
   },
 
-  cardBody: { padding: 14, flex: 1, display: "flex", flexDirection: "column" },
-  cardTitle: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  cardDesc: { opacity: 0.76, fontSize: 13, marginTop: 6, minHeight: 34 },
-
-  priceRow: {
-    marginTop: 10,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
+  body: { padding: 14 },
+  titleRow: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  title: { fontWeight: 950, fontSize: 14, color: "#0B0F19" },
+  priceTag: {
+    fontSize: 12,
+    fontWeight: 950,
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(242,211,75,.35)",
+    border: "1px solid rgba(242,211,75,.60)",
+    color: "rgba(15,23,42,.78)",
+    whiteSpace: "nowrap",
   },
-  price: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  priceStrike: {
-    marginLeft: 8,
-    opacity: 0.55,
-    textDecoration: "line-through",
-    fontWeight: 800,
-    fontSize: 13,
-  },
-  stock: { fontSize: 12, opacity: 0.7 },
+  desc: { marginTop: 8, color: "rgba(15,23,42,.70)", fontSize: 12.5, lineHeight: 1.55, minHeight: 36 },
 
-  actionsRow: { display: "flex", gap: 10, marginTop: 14 },
+  metaRow: { marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline" },
+  stock: { fontSize: 12.5, color: "rgba(15,23,42,.70)", fontWeight: 700 },
+  strike: { fontSize: 12.5, color: "rgba(15,23,42,.45)", textDecoration: "line-through", fontWeight: 900 },
 
-  btnIcon: {
-    width: 18,
-    height: 18,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  actions: { display: "flex", gap: 10, marginTop: 12 },
+  btnIcon: { width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center" },
 
   buyBtn: {
     border: 0,
     cursor: "pointer",
-    padding: "10px 12px",
+    height: 44,
     borderRadius: 14,
     fontWeight: 950,
     fontSize: 13,
@@ -556,15 +577,13 @@ const styles = {
     justifyContent: "center",
     gap: 8,
     flex: 1,
-    color: "#062312",
-    background: "linear-gradient(135deg, #22c55e, #86efac)",
-    boxShadow: "0 14px 28px rgba(34,197,94,.18)",
+    color: "#0B0F19",
+    background: "#F2D34B",
   },
 
   cartBtn: {
-    border: "1px solid rgba(148,163,184,.55)",
     cursor: "pointer",
-    padding: "10px 12px",
+    height: 44,
     borderRadius: 14,
     fontWeight: 950,
     fontSize: 13,
@@ -573,161 +592,11 @@ const styles = {
     justifyContent: "center",
     gap: 8,
     flex: 1,
-    color: "#0f172a",
-    background: "rgba(255,255,255,.92)",
+    color: "#0B0F19",
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.12)",
   },
 
-  /* MODAL */
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(2,6,23,.58)",
-    backdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    zIndex: 1000,
-  },
-
-  modal: {
-    width: "min(620px, 100%)",
-    maxHeight: "78vh",
-    background: "rgba(255,255,255,.97)",
-    borderRadius: 18,
-    overflow: "hidden",
-    boxShadow: "0 40px 120px rgba(0,0,0,.35)",
-    border: "1px solid rgba(148,163,184,.35)",
-  },
-
-  modalHeader: {
-    padding: "14px 16px",
-    borderBottom: "1px solid rgba(148,163,184,.28)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    background: "rgba(248,250,252,.95)",
-  },
-  modalTitle: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  modalSubtitle: { fontSize: 12, opacity: 0.75, marginTop: 2 },
-
-  closeBtn: {
-    border: "1px solid rgba(148,163,184,.35)",
-    background: "rgba(255,255,255,.9)",
-    cursor: "pointer",
-    borderRadius: 12,
-    padding: 8,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  modalBody: {
-    padding: 16,
-    overflowY: "auto",
-    maxHeight: "calc(78vh - 60px)",
-  },
-
-  summaryRow: {
-    display: "grid",
-    gridTemplateColumns: "1fr 110px 130px",
-    gap: 10,
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 14,
-    border: "1px solid rgba(148,163,184,.35)",
-    background: "rgba(248,250,252,.92)",
-    marginBottom: 12,
-  },
-
-  qtyBox: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-    padding: 10,
-    borderRadius: 14,
-    border: "1px solid rgba(148,163,184,.28)",
-    background: "rgba(255,255,255,.9)",
-  },
-
-  qtyInput: {
-    width: "100%",
-    borderRadius: 12,
-    border: "1px solid rgba(148,163,184,.45)",
-    padding: "10px 10px",
-    outline: "none",
-    fontWeight: 900,
-    fontSize: 14,
-    background: "rgba(255,255,255,.98)",
-  },
-
-  totalBoxMini: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-    padding: 10,
-    borderRadius: 14,
-    border: "1px solid rgba(148,163,184,.28)",
-    background: "rgba(255,255,255,.9)",
-  },
-
-  formCol: {
-    display: "grid",
-    gridTemplateColumns: "1fr",
-    gap: 10,
-    marginBottom: 12,
-  },
-
-  field: { display: "block" },
-  fieldLabel: { fontSize: 12, fontWeight: 950, marginBottom: 6, color: "#0f172a" },
-
-  input: {
-    width: "100%",
-    borderRadius: 14,
-    border: "1px solid rgba(148,163,184,.45)",
-    padding: "11px 12px",
-    outline: "none",
-    fontSize: 14,
-    background: "rgba(255,255,255,.98)",
-  },
-
-  inputReadOnly: {
-    background: "rgba(241,245,249,.9)",
-    color: "#64748b",
-    cursor: "not-allowed",
-    border: "1px solid rgba(148,163,184,.35)",
-  },
-
-  payBox: {
-    border: "1px solid rgba(148,163,184,.35)",
-    borderRadius: 14,
-    padding: 12,
-    background: "rgba(255,255,255,.92)",
-  },
-
-  tip: {
-    marginTop: 10,
-    fontSize: 12,
-    opacity: 0.75,
-  },
-
-  warn: {
-    padding: "10px 12px",
-    borderRadius: 14,
-    border: "1px solid rgba(239,68,68,.35)",
-    background: "rgba(239,68,68,.06)",
-    fontSize: 13,
-    fontWeight: 800,
-    color: "#991b1b",
-  },
-
-  hint: {
-    marginTop: 12,
-    fontSize: 12,
-    opacity: 0.75,
-    background: "rgba(241,245,249,.9)",
-    border: "1px solid rgba(148,163,184,.35)",
-    padding: "10px 12px",
-    borderRadius: 14,
-  },
+  btnDisabled: { opacity: 0.55, cursor: "not-allowed" },
+  btnDisabledOutline: { opacity: 0.55, cursor: "not-allowed" },
 };
