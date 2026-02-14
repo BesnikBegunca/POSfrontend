@@ -5,7 +5,6 @@ const API = "http://localhost:5083";
 
 export default function CreateStore() {
   const [storeName, setStoreName] = useState("");
-  const [slug, setSlug] = useState("");
   const [ownerFullName, setOwnerFullName] = useState("");
   const [ownerEmail, setOwnerEmail] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
@@ -14,12 +13,22 @@ export default function CreateStore() {
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
 
+  const resetForm = () => {
+    setStoreName("");
+    setOwnerFullName("");
+    setOwnerEmail("");
+    setOwnerPassword("");
+    setImageFile(null);
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setMsg("");
     setErr("");
 
     try {
+      setLoading(true);
+
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
       setLoading(true);

@@ -126,7 +126,6 @@ const Icon = {
 function safeGetSession() {
   const token = localStorage.getItem("token");
   if (!token) return { token: null, me: null };
-
   const fullName = localStorage.getItem("fullName") || "";
   const email = localStorage.getItem("email") || "";
   return { token, me: { fullName, email } };
@@ -154,7 +153,6 @@ export default function StorePage() {
   });
 
   const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
 
   useEffect(() => {
     (async () => {
@@ -322,6 +320,8 @@ export default function StorePage() {
               </span>
               Stores
             </Link>
+            <span style={styles.dot}>•</span>
+            <span style={{ opacity: 0.9 }}>{store?.name ?? "Store"}</span>
           </div>
 
           <div
@@ -338,9 +338,40 @@ export default function StorePage() {
             <Icon.Cart />
             <b style={{ marginLeft: 8 }}>{cartCount}</b>
           </div>
+        </div>
+      </div>
 
-          <div style={styles.authBtns}>
-            <UserMenu />
+      {/* NAVBAR (yellow like Stores) */}
+      <nav style={styles.navbar}>
+        <div style={styles.navInner}>
+          <Link to="/" style={styles.logoLink}>
+            <div style={styles.logo}>MyStore</div>
+          </Link>
+
+          <div style={styles.navRight}>
+            <div style={styles.navLinks}>
+              <Link to="/" style={styles.navBtn}>
+                <span style={styles.navIcon}>
+                  <Icon.Home />
+                </span>
+                Home
+              </Link>
+              <Link to="/stores" style={styles.navBtn}>
+                <span style={styles.navIcon}>
+                  <Icon.Store />
+                </span>
+                Stores
+              </Link>
+            </div>
+
+            <div style={styles.cartPill} title="Cart (later)">
+              <Icon.Cart />
+              <span style={styles.cartBadge}>{cartCount}</span>
+            </div>
+
+            <div style={styles.userWrap}>
+              <UserMenu />
+            </div>
           </div>
 
           <button
@@ -419,6 +450,7 @@ export default function StorePage() {
               )}
             </div>
           </div>
+        </div>
 
           <div style={styles.grid}>
             {products.map((p) => {
@@ -484,33 +516,45 @@ export default function StorePage() {
                         Add to cart
                       </button>
                     </div>
+                    {d > 0 && <div style={styles.strike}>€{pr.toFixed(2)}</div>}
+                  </div>
+
+                  <div style={styles.actions}>
+                    <button
+                      onClick={() => openBuy(p)}
+                      style={{
+                        ...styles.buyBtn,
+                        ...(Number(p.quantity || 0) <= 0 ? styles.btnDisabled : {}),
+                      }}
+                      disabled={Number(p.quantity || 0) <= 0}
+                    >
+                      <span style={styles.btnIcon}>
+                        <Icon.Bolt />
+                      </span>
+                      Buy
+                    </button>
+
+                    <button
+                      onClick={() => addToCart(p)}
+                      style={{
+                        ...styles.cartBtn,
+                        ...(Number(p.quantity || 0) <= 0 ? styles.btnDisabledOutline : {}),
+                      }}
+                      disabled={Number(p.quantity || 0) <= 0}
+                    >
+                      <span style={styles.btnIcon}>
+                        <Icon.Cart />
+                      </span>
+                      Add
+                    </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
-  );
-}
-
-function Field({ label, value, onChange, type = "text", readOnly = false }) {
-  return (
-    <label style={styles.field}>
-      <div style={styles.fieldLabel}>{label}</div>
-      <input
-        type={type}
-        value={value ?? ""}
-        onChange={readOnly ? undefined : (e) => onChange(e.target.value)}
-        readOnly={readOnly}
-        disabled={readOnly}
-        style={{
-          ...styles.input,
-          ...(readOnly ? styles.inputReadOnly : {}),
-        }}
-      />
-    </label>
   );
 }
 
@@ -518,78 +562,91 @@ function Field({ label, value, onChange, type = "text", readOnly = false }) {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#0b1220",
+    background: "#F6F6F2",
     fontFamily: "Inter, system-ui, sans-serif",
-    color: "#0f172a",
+    color: "#0F172A",
   },
 
-  navbar: {
-    height: 68,
-    padding: "0 clamp(16px, 4vw, 28px)",
-    background: "rgba(11,18,32,.9)",
-    borderBottom: "1px solid rgba(148,163,184,.18)",
-    color: "#fff",
+  /* TOP STRIP */
+  topStrip: {
+    background: "#111827",
+    color: "rgba(255,255,255,.85)",
+    fontSize: 12,
+  },
+  topStripInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "10px 18px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
-    backdropFilter: "blur(10px)",
+    gap: 12,
+  },
+  topLeft: { display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  topLink: { color: "rgba(255,255,255,.88)", textDecoration: "none", fontWeight: 700 },
+  dot: { opacity: 0.5 },
+  topRight: { display: "flex", gap: 8, alignItems: "center" },
+  miniPill: {
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(255,255,255,.08)",
+    border: "1px solid rgba(255,255,255,.10)",
+    whiteSpace: "nowrap",
   },
 
-  logoLink: { textDecoration: "none", color: "#fff" },
+  /* NAVBAR (yellow like Stores) */
+  navbar: {
+    background: "#F2D34B",
+    borderBottom: "1px solid rgba(0,0,0,.08)",
+  },
+  navInner: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    padding: "14px 18px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 14,
+  },
+  logoLink: { textDecoration: "none", color: "#0B0F19" },
   logo: {
+    fontWeight: 900,
+    fontSize: 22,
+    letterSpacing: 0.2,
+    color: "#0B0F19",
+    whiteSpace: "nowrap",
+  },
+
+  navRight: { display: "flex", alignItems: "center", gap: 12 },
+  navLinks: { display: "flex", gap: 10, alignItems: "center" },
+  navBtn: {
+    color: "rgba(15,23,42,.90)",
+    textDecoration: "none",
+    fontWeight: 900,
+    fontSize: 13,
+    padding: "8px 10px",
+    borderRadius: 12,
+    background: "rgba(255,255,255,.55)",
+    border: "1px solid rgba(0,0,0,.10)",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 8,
+    whiteSpace: "nowrap",
+  },
+  navIcon: { width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center" },
+
+  cartPill: {
+    height: 40,
+    padding: "0 12px",
+    borderRadius: 999,
     display: "inline-flex",
     alignItems: "center",
     gap: 10,
-    fontWeight: 950,
-    fontSize: 18,
-    letterSpacing: 0.2,
-  },
-  logoDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    background: "linear-gradient(135deg, #22c55e, #60a5fa)",
-    boxShadow: "0 10px 18px rgba(34,197,94,.25)",
-  },
-
-  navRight: { display: "flex", alignItems: "center", gap: 14 },
-  navLinks: { display: "flex", gap: 10, alignItems: "center" },
-
-  navLink: {
-    color: "rgba(226,232,240,.9)",
-    textDecoration: "none",
-    fontWeight: 800,
-    fontSize: 13,
-    padding: "10px 12px",
-    borderRadius: 12,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    border: "1px solid transparent",
-  },
-  navIcon: {
-    width: 18,
-    height: 18,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    opacity: 0.95,
-  },
-
-  cartPill: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    padding: "10px 12px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,.06)",
-    border: "1px solid rgba(148,163,184,.22)",
-    fontSize: 13,
+    background: "rgba(255,255,255,.60)",
+    border: "1px solid rgba(0,0,0,.12)",
     fontWeight: 900,
-    color: "#e2e8f0",
+    color: "rgba(15,23,42,.92)",
+    whiteSpace: "nowrap",
   },
 
   authBtns: { display: "flex", gap: 10, alignItems: "center" },
@@ -609,17 +666,19 @@ const styles = {
       "radial-gradient(1200px 600px at 20% -10%, rgba(96,165,250,.22), transparent 60%), radial-gradient(900px 500px at 85% 0%, rgba(34,197,94,.18), transparent 55%), #f8fafc",
     padding: 24,
   },
+  userWrap: { display: "flex", alignItems: "center" },
 
-  container: { maxWidth: 1200, margin: "0 auto" },
+  /* BODY */
+  container: { maxWidth: 1200, margin: "0 auto", padding: "22px 18px 60px" },
 
   headerRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-end",
     gap: 16,
-    marginBottom: 16,
+    marginBottom: 14,
   },
-  h1: { margin: 0, fontSize: 28, letterSpacing: -0.2, color: "#0f172a" },
+  h1: { margin: 0, fontSize: 28, letterSpacing: -0.3, color: "#0B0F19" },
   subtle: { marginTop: 6, fontSize: 13, opacity: 0.72 },
 
   userChip: {
@@ -628,86 +687,72 @@ const styles = {
     gap: 10,
     padding: "10px 12px",
     borderRadius: 14,
-    background: "rgba(255,255,255,.75)",
-    border: "1px solid rgba(148,163,184,.35)",
-    boxShadow: "0 12px 30px rgba(2,6,23,.06)",
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.10)",
     minWidth: 220,
     justifyContent: "center",
   },
-  userDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    background: "#22c55e",
-    boxShadow: "0 10px 18px rgba(34,197,94,.2)",
-  },
+  userDot: { width: 10, height: 10, borderRadius: 999, background: "#22c55e" },
+  userName: { fontWeight: 900, fontSize: 12, lineHeight: 1.1 },
+  userEmail: { fontSize: 12, opacity: 0.7, lineHeight: 1.1 },
+  userMuted: { opacity: 0.75, fontSize: 13 },
 
+  /* GRID */
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
     gap: 18,
-    marginTop: 18,
+    marginTop: 16,
   },
 
+  /* CARD */
   card: {
-    background: "rgba(255,255,255,.85)",
+    background: "#FFFFFF",
     borderRadius: 18,
+    border: "1px solid rgba(15,23,42,.08)",
     overflow: "hidden",
-    border: "1px solid rgba(148,163,184,.35)",
-    boxShadow: "0 16px 50px rgba(2,6,23,.08)",
-    display: "flex",
-    flexDirection: "column",
   },
-  cardMedia: { position: "relative" },
-  cardImg: { width: "100%", height: 175, objectFit: "cover", display: "block" },
-
-  badgeDiscount: {
+  media: { position: "relative", background: "#F7F7F4" },
+  img: { width: "100%", height: 220, objectFit: "cover", display: "block" },
+  badge: {
     position: "absolute",
     top: 12,
     left: 12,
-    background: "rgba(15,23,42,.92)",
+    background: "#0B0F19",
     color: "#fff",
-    padding: "6px 10px",
+    padding: "7px 10px",
     borderRadius: 999,
     fontWeight: 950,
     fontSize: 12,
-    border: "1px solid rgba(255,255,255,.18)",
+    border: "1px solid rgba(255,255,255,.16)",
   },
 
-  cardBody: { padding: 14, flex: 1, display: "flex", flexDirection: "column" },
-  cardTitle: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  cardDesc: { opacity: 0.76, fontSize: 13, marginTop: 6, minHeight: 34 },
-
-  priceRow: {
-    marginTop: 10,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
+  body: { padding: 14 },
+  titleRow: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  title: { fontWeight: 950, fontSize: 14, color: "#0B0F19" },
+  priceTag: {
+    fontSize: 12,
+    fontWeight: 950,
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(242,211,75,.35)",
+    border: "1px solid rgba(242,211,75,.60)",
+    color: "rgba(15,23,42,.78)",
+    whiteSpace: "nowrap",
   },
-  price: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  priceStrike: {
-    marginLeft: 8,
-    opacity: 0.55,
-    textDecoration: "line-through",
-    fontWeight: 800,
-    fontSize: 13,
-  },
-  stock: { fontSize: 12, opacity: 0.7 },
+  desc: { marginTop: 8, color: "rgba(15,23,42,.70)", fontSize: 12.5, lineHeight: 1.55, minHeight: 36 },
 
-  actionsRow: { display: "flex", gap: 10, marginTop: 14 },
+  metaRow: { marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline" },
+  stock: { fontSize: 12.5, color: "rgba(15,23,42,.70)", fontWeight: 700 },
+  strike: { fontSize: 12.5, color: "rgba(15,23,42,.45)", textDecoration: "line-through", fontWeight: 900 },
 
-  btnIcon: {
-    width: 18,
-    height: 18,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  actions: { display: "flex", gap: 10, marginTop: 12 },
+  btnIcon: { width: 18, height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center" },
 
   buyBtn: {
     border: 0,
     cursor: "pointer",
-    padding: "10px 12px",
+    height: 44,
     borderRadius: 14,
     fontWeight: 950,
     fontSize: 13,
@@ -716,15 +761,13 @@ const styles = {
     justifyContent: "center",
     gap: 8,
     flex: 1,
-    color: "#062312",
-    background: "linear-gradient(135deg, #22c55e, #86efac)",
-    boxShadow: "0 14px 28px rgba(34,197,94,.18)",
+    color: "#0B0F19",
+    background: "#F2D34B",
   },
 
   cartBtn: {
-    border: "1px solid rgba(148,163,184,.55)",
     cursor: "pointer",
-    padding: "10px 12px",
+    height: 44,
     borderRadius: 14,
     fontWeight: 950,
     fontSize: 13,
@@ -733,59 +776,9 @@ const styles = {
     justifyContent: "center",
     gap: 8,
     flex: 1,
-    color: "#0f172a",
-    background: "rgba(255,255,255,.92)",
-  },
-
-  /* MODAL */
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(2,6,23,.58)",
-    backdropFilter: "blur(8px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    zIndex: 1000,
-  },
-
-  modal: {
-    width: "min(620px, 100%)",
-    maxHeight: "78vh",
-    background: "rgba(255,255,255,.97)",
-    borderRadius: 18,
-    overflow: "hidden",
-    boxShadow: "0 40px 120px rgba(0,0,0,.35)",
-    border: "1px solid rgba(148,163,184,.35)",
-  },
-
-  modalHeader: {
-    padding: "14px 16px",
-    borderBottom: "1px solid rgba(148,163,184,.28)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    background: "rgba(248,250,252,.95)",
-  },
-  modalTitle: { fontWeight: 950, fontSize: 16, color: "#0f172a" },
-  modalSubtitle: { fontSize: 12, opacity: 0.75, marginTop: 2 },
-
-  closeBtn: {
-    border: "1px solid rgba(148,163,184,.35)",
-    background: "rgba(255,255,255,.9)",
-    cursor: "pointer",
-    borderRadius: 12,
-    padding: 8,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  modalBody: {
-    padding: 16,
-    overflowY: "auto",
-    maxHeight: "calc(78vh - 60px)",
+    color: "#0B0F19",
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.12)",
   },
 
   summaryRow: {

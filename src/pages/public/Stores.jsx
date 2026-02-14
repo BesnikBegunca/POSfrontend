@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import UserMenu from "../../components/UserMenu";
@@ -6,17 +6,24 @@ import { useTheme, themes } from "../../context/ThemeContext";
 
 const API = "http://localhost:5083";
 
-// ✅ vendose nje foto te /public/hero.jpg
+// ✅ vendose nje foto te /public/hero.jpg (model / fashion photo)
 const HERO_BG = "/hero.jpg";
 
 export default function Stores() {
   const [stores, setStores] = useState([]);
   const { theme, toggleTheme, isDark } = useTheme();
   const themePalette = themes[theme] || themes.light;
+  const [q, setQ] = useState("");
 
   useEffect(() => {
     axios.get(`${API}/api/public/stores`).then((r) => setStores(r.data));
   }, []);
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return stores;
+    return stores.filter((x) => (x.name ?? "").toLowerCase().includes(s));
+  }, [stores, q]);
 
   return (
     <div
@@ -69,24 +76,52 @@ export default function Stores() {
               <span style={styles.burgerLine} />
               <span style={styles.burgerLine} />
             </button>
+    <div style={styles.page}>
+      {/* NAVBAR (white / clean) */}
+      <header style={styles.header}>
+        <div style={styles.container}>
+          <div style={styles.nav}>
+            <Link to="/" style={styles.brand}>
+              <span style={styles.brandMark} />
+              <span style={styles.brandText}>FASHION</span>
+            </Link>
 
-            <select style={styles.categorySelect} defaultValue="all">
-              <option value="all">All Category</option>
-              <option value="fashion">Fashion</option>
-              <option value="electronics">Electronics</option>
-              <option value="home">Home</option>
-            </select>
+            <nav style={styles.navLinks}>
+              <a href="#new" style={styles.navLink}>
+                Collections
+              </a>
+              <a href="#new" style={styles.navLink}>
+                New
+              </a>
+              <a href="#new" style={styles.navLink}>
+                Featured
+              </a>
+              <a href="#new" style={styles.navLink}>
+                Shop
+              </a>
+            </nav>
 
-            <div style={styles.searchWrap}>
-              <input
-                style={styles.searchInput}
-                placeholder="Search this store..."
-              />
-              <button style={styles.searchBtn} aria-label="Search">
-                🔍
-              </button>
+            <div style={styles.navRight}>
+              <div style={styles.searchMini}>
+                <span style={styles.searchIcon}>⌕</span>
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search stores…"
+                  style={styles.searchInput}
+                />
+              </div>
+
+              <div style={styles.actionRow}>
+                <button style={styles.blackBtn}>Sign Up</button>
+                <div style={styles.userWrap}>
+                  <UserMenu />
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+      </header>
 
           <div style={styles.navRight}>
             <div style={styles.navLinks}>
@@ -145,11 +180,56 @@ export default function Stores() {
               >
                 🛒 <span style={styles.cartText}>Cart</span>
                 <span style={styles.cartBadge}>0</span>
-              </div>
-            </div>
+      {/* HERO (si template: left text + right photo) */}
+      <section style={styles.heroWrap}>
+        <div style={styles.container}>
+          <div style={styles.heroCard}>
+            <div style={styles.heroGrid}>
+              {/* LEFT */}
+              <div style={styles.heroLeft}>
+                <h1 style={styles.h1}>
+                  LET’S
+                  <br />
+                  EXPLORE{" "}
+                  <span style={styles.highlightWrap}>
+                    <span style={styles.highlightBg} />
+                    <span style={styles.highlightText}>UNIQUE</span>
+                  </span>{" "}
+                  <br />
+                  CLOTHES.
+                </h1>
 
-            <div style={styles.userWrap}>
-              <UserMenu />
+                <p style={styles.heroP}>
+                  Live for influential and innovative fashion. Explore stores and
+                  discover what’s trending today.
+                </p>
+
+                <div style={styles.heroCtas}>
+                  <Link to="/stores" style={styles.shopNowBtn}>
+                    Shop Now
+                  </Link>
+                  <a href="#new" style={styles.ghostLink}>
+                    View New Arrivals →
+                  </a>
+                </div>
+              </div>
+
+              {/* RIGHT */}
+              <div style={styles.heroRight}>
+                <div
+                  style={{
+                    ...styles.heroImg,
+                    backgroundImage: `url(${HERO_BG})`,
+                  }}
+                  aria-label="Hero"
+                />
+                <div style={styles.heroSparkles} aria-hidden="true">
+                  <span style={{ ...styles.sparkle, top: 26, left: 22 }} />
+                  <span style={{ ...styles.sparkle, top: 72, right: 28 }} />
+                  <span style={{ ...styles.sparkle, bottom: 36, left: 64 }} />
+                  <span style={{ ...styles.sparkle, bottom: 18, right: 54 }} />
+                </div>
+              </div>
             </div>
 
             <button
@@ -172,23 +252,18 @@ export default function Stores() {
             </button>
           </div>
         </div>
-      </nav>
+      </section>
 
-      {/* HERO (si ne foto: background image + overlay + CTA) */}
-      <header
-        style={{
-          ...styles.hero,
-          backgroundImage: `linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55)), url(${HERO_BG})`,
-        }}
-      >
-        <div style={styles.heroInner}>
-          <div style={styles.heroBrand}>MyStore</div>
-
-          <div style={styles.heroTitle}>GET START</div>
-          <div style={styles.heroTitle2}>YOUR FAVORITE SHOPPING</div>
-
-          <div style={styles.heroActions}>
-            <button style={styles.heroBtn}>BUY NOW</button>
+      {/* BRANDS STRIP (yellow bar) */}
+      <section style={styles.brandStrip}>
+        <div style={styles.container}>
+          <div style={styles.brandRow}>
+            <span style={styles.brandLogo}>H&M</span>
+            <span style={styles.brandLogo}>OBEY</span>
+            <span style={styles.brandLogo}>shopify</span>
+            <span style={styles.brandLogo}>LACOSTE</span>
+            <span style={styles.brandLogo}>LEVI’S</span>
+            <span style={styles.brandLogo}>amazon</span>
           </div>
         </div>
 
@@ -251,209 +326,177 @@ export default function Stores() {
               </div>
             </Link>
           ))}
+      </section>
+
+      {/* NEW ARRIVALS */}
+      <section id="new" style={styles.section}>
+        <div style={styles.container}>
+          <div style={styles.sectionHead}>
+            <h2 style={styles.h2}>NEW ARRIVALS</h2>
+            <div style={styles.sectionMeta}>
+              <span style={styles.countPill}>{filtered.length} stores</span>
+            </div>
+          </div>
+
+          <div style={styles.grid}>
+            {filtered.map((s) => {
+              const imgPath = s.image ?? s.Image; // "/uploads/stores/xxx.jpg"
+              const imgSrc = imgPath ? `${API}${imgPath}` : "/assets/logo/default-store.png";
+
+              return (
+                <Link key={s.id} to={`/store/${s.id}`} style={styles.cardLink}>
+                  <article style={styles.card} className="arrival-card">
+                    <div style={styles.cardImgWrap}>
+                      <img
+                        src={imgSrc}
+                        alt={s.name}
+                        style={styles.cardImg}
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = "/assets/logo/default-store.png";
+                        }}
+                      />
+                    </div>
+
+                    <div style={styles.cardBody}>
+                      <div style={styles.cardTitleRow}>
+                        <h3 style={styles.cardTitle}>{s.name}</h3>
+                        <span style={styles.cardTag}>Store</span>
+                      </div>
+                      <p style={styles.cardSub}>
+                        Explore products, offers & new drops from <b>{s.name}</b>.
+                      </p>
+                      <div style={styles.cardFooter}>
+                        <span style={styles.cardCta}>Shop now →</span>
+                      </div>
+                    </div>
+                  </article>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
       <style>{`
-        .store-card:hover{
-          transform: translateY(-4px);
-          box-shadow: 0 18px 50px rgba(0,0,0,.12);
-          border-color: rgba(0,0,0,.10);
+        .arrival-card{
+          transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
         }
-        .store-card:active{
-          transform: translateY(-2px);
+        .arrival-card:hover{
+          transform: translateY(-6px);
+          box-shadow: 0 22px 60px rgba(17,24,39,.10);
+          border-color: rgba(17,24,39,.14);
         }
-        .nav-link:hover{
-          opacity:.95;
-          text-decoration: underline;
+        .arrival-card:active{
+          transform: translateY(-3px);
+        }
+        @media (max-width: 900px){
+          .navLinksHideOnMobile{ display:none; }
         }
       `}</style>
     </div>
   );
 }
 
-/* ================= STYLES ================= */
-
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f3f4f6",
-    fontFamily: "Inter, system-ui, sans-serif",
-    overflow: "auto",
+    background: "#F6F6F2", // off-white si template
+    fontFamily: "Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial",
+    color: "#0F172A",
   },
 
-  /* TOP STRIP */
-  topStrip: {
-    background: "#111827",
-    color: "rgba(255,255,255,.85)",
-    fontSize: 12,
-  },
-  topStripInner: {
+  container: {
     maxWidth: 1200,
     margin: "0 auto",
-    padding: "10px 18px",
+    padding: "0 18px",
+  },
+
+  /* Header / Nav */
+  header: {
+    background: "#FFFFFF",
+    borderBottom: "1px solid rgba(15,23,42,.08)",
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+  },
+  nav: {
+    height: 76,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
+    gap: 18,
   },
-  topLinks: {
-    display: "flex",
+  brand: {
+    display: "inline-flex",
     alignItems: "center",
     gap: 10,
-    flexWrap: "wrap",
+    textDecoration: "none",
+    color: "#0F172A",
   },
-  topLink: { cursor: "default", whiteSpace: "nowrap" },
-  dot: { opacity: 0.5 },
-  topRight: { display: "flex", gap: 8, alignItems: "center" },
-  miniPill: {
-    padding: "6px 10px",
-    borderRadius: 999,
-    background: "rgba(255,255,255,.08)",
-    border: "1px solid rgba(255,255,255,.10)",
-    whiteSpace: "nowrap",
+  brandMark: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    background: "#F2D34B",
+    boxShadow: "0 10px 22px rgba(242,211,75,.30)",
+    display: "inline-block",
   },
-
-  /* NAVBAR */
-  navbar: {
-    background: "#f59e0b", // gold like screenshot
-    borderBottom: "1px solid rgba(0,0,0,.08)",
-  },
-  navInner: {
-    maxWidth: 1200,
-    margin: "0 auto",
-    padding: "14px 18px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-  },
-  logoLink: { textDecoration: "none", color: "#fff" },
-  logo: {
+  brandText: {
     fontWeight: 900,
-    fontSize: 22,
-    letterSpacing: 0.2,
-    color: "#fff",
-    textShadow: "0 2px 10px rgba(0,0,0,.15)",
-    whiteSpace: "nowrap",
+    letterSpacing: 0.8,
+    fontSize: 13,
   },
-
-  navMid: {
+  navLinks: {
     display: "flex",
     alignItems: "center",
-    gap: 10,
-    flex: 1,
-    justifyContent: "center",
-    minWidth: 280,
+    gap: 22,
   },
-
-  burger: {
-    width: 42,
-    height: 40,
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,.12)",
-    background: "rgba(255,255,255,.20)",
-    display: "grid",
-    placeItems: "center",
-    cursor: "pointer",
-  },
-  burgerLine: {
-    display: "block",
-    width: 18,
-    height: 2,
-    background: "rgba(17,24,39,.9)",
-    borderRadius: 999,
-    margin: 2,
-  },
-
-  categorySelect: {
-    height: 40,
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,.12)",
-    padding: "0 10px",
-    background: "rgba(255,255,255,.92)",
+  navLink: {
+    textDecoration: "none",
+    color: "rgba(15,23,42,.78)",
     fontWeight: 700,
     fontSize: 13,
-    outline: "none",
-    minWidth: 140,
   },
-
-  searchWrap: {
-    display: "flex",
-    alignItems: "center",
-    height: 40,
-    borderRadius: 10,
-    overflow: "hidden",
-    border: "1px solid rgba(0,0,0,.12)",
-    background: "rgba(255,255,255,.92)",
-    width: "min(520px, 100%)",
-  },
-  searchInput: {
-    flex: 1,
-    height: "100%",
-    border: "none",
-    outline: "none",
-    padding: "0 12px",
-    fontSize: 13,
-    background: "transparent",
-  },
-  searchBtn: {
-    height: "100%",
-    width: 44,
-    border: "none",
-    cursor: "pointer",
-    background: "#ef4444",
-    color: "#fff",
-    fontSize: 14,
-  },
-
   navRight: {
     display: "flex",
     alignItems: "center",
     gap: 12,
   },
-  navLinks: {
-    display: "flex",
-    gap: 12,
-    alignItems: "center",
-  },
-  navLink: {
-    color: "rgba(17,24,39,.90)",
-    textDecoration: "none",
-    fontWeight: 900,
-    fontSize: 13,
-    padding: "6px 8px",
-    borderRadius: 10,
-    background: "rgba(255,255,255,.18)",
-    border: "1px solid rgba(0,0,0,.10)",
-    whiteSpace: "nowrap",
-  },
-
-  cartWrap: { display: "flex", alignItems: "center" },
-  cartPill: {
+  searchMini: {
     height: 40,
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
     padding: "0 12px",
     borderRadius: 999,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
-    background: "rgba(255,255,255,.22)",
-    border: "1px solid rgba(0,0,0,.12)",
-    fontWeight: 900,
-    color: "rgba(17,24,39,.92)",
-    whiteSpace: "nowrap",
+    background: "#F7F7F4",
+    border: "1px solid rgba(15,23,42,.08)",
+    minWidth: 240,
   },
-  cartText: { fontSize: 13 },
-  cartBadge: {
-    minWidth: 22,
-    height: 22,
-    borderRadius: 999,
-    background: "#111827",
+  searchIcon: { opacity: 0.55, fontWeight: 900 },
+  searchInput: {
+    flex: 1,
+    border: "none",
+    outline: "none",
+    background: "transparent",
+    fontSize: 13,
+  },
+  actionRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  blackBtn: {
+    height: 40,
+    padding: "0 16px",
+    borderRadius: 12,
+    background: "#0B0F19",
     color: "#fff",
-    display: "grid",
-    placeItems: "center",
-    fontSize: 12,
+    border: "1px solid rgba(0,0,0,.20)",
     fontWeight: 900,
+    fontSize: 13,
+    cursor: "pointer",
   },
   userWrap: { display: "flex", alignItems: "center" },
   themeToggle: {
@@ -466,152 +509,203 @@ const styles = {
     letterSpacing: 0.3,
   },
 
-  /* HERO */
-  hero: {
-    height: 360,
+  /* Hero */
+  heroWrap: { padding: "22px 0 0" },
+  heroCard: {
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.08)",
+    borderRadius: 22,
+    overflow: "hidden",
+    boxShadow: "0 20px 60px rgba(15,23,42,.06)",
+  },
+  heroGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.1fr .9fr",
+    gap: 0,
+    alignItems: "stretch",
+  },
+  heroLeft: {
+    padding: "44px 42px",
+  },
+  h1: {
+    margin: 0,
+    fontWeight: 900,
+    letterSpacing: -0.6,
+    lineHeight: 1.02,
+    fontSize: 52,
+    color: "#0B0F19",
+  },
+  highlightWrap: {
     position: "relative",
+    display: "inline-block",
+    padding: "0 6px",
+    margin: "0 2px",
+  },
+  highlightBg: {
+    position: "absolute",
+    inset: "55% -4px -8px -4px",
+    background: "#F2D34B",
+    borderRadius: 10,
+    zIndex: 0,
+  },
+  highlightText: { position: "relative", zIndex: 1 },
+  heroP: {
+    margin: "18px 0 0",
+    maxWidth: 520,
+    color: "rgba(15,23,42,.70)",
+    fontSize: 14,
+    lineHeight: 1.65,
+    fontWeight: 600,
+  },
+  heroCtas: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    marginTop: 22,
+  },
+  shopNowBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 44,
+    padding: "0 18px",
+    borderRadius: 12,
+    background: "#0B0F19",
+    color: "#fff",
+    textDecoration: "none",
+    fontWeight: 900,
+    fontSize: 13,
+  },
+  ghostLink: {
+    color: "rgba(15,23,42,.72)",
+    textDecoration: "none",
+    fontWeight: 800,
+    fontSize: 13,
+  },
+  heroRight: {
+    position: "relative",
+    padding: 18,
+    background: "linear-gradient(180deg, #FFFFFF, #F7F7F2)",
+  },
+  heroImg: {
+    width: "100%",
+    height: "100%",
+    minHeight: 320,
+    borderRadius: 18,
     backgroundSize: "cover",
     backgroundPosition: "center",
-    display: "grid",
-    placeItems: "center",
+    border: "1px solid rgba(15,23,42,.10)",
   },
-  heroInner: {
-    textAlign: "center",
-    color: "#fff",
-    padding: "0 18px",
-  },
-  heroBrand: {
-    fontWeight: 900,
-    fontSize: 20,
-    letterSpacing: 0.2,
-    opacity: 0.95,
-    marginBottom: 18,
-    textShadow: "0 6px 18px rgba(0,0,0,.35)",
-  },
-  heroTitle: {
-    fontWeight: 900,
-    fontSize: 44,
-    lineHeight: 1,
-    textShadow: "0 10px 26px rgba(0,0,0,.35)",
-  },
-  heroTitle2: {
-    marginTop: 10,
-    fontWeight: 900,
-    fontSize: 28,
-    textShadow: "0 10px 26px rgba(0,0,0,.35)",
-  },
-  heroActions: { marginTop: 22 },
-  heroBtn: {
-    border: "none",
-    cursor: "pointer",
-    padding: "10px 18px",
-    borderRadius: 10,
-    background: "rgba(17,24,39,.92)",
-    color: "#fff",
-    fontWeight: 900,
-    letterSpacing: 0.4,
-    boxShadow: "0 14px 30px rgba(0,0,0,.25)",
-  },
-  heroCircle: {
+  heroSparkles: { position: "absolute", inset: 0, pointerEvents: "none" },
+  sparkle: {
     position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: 42,
-    height: 42,
+    width: 10,
+    height: 10,
     borderRadius: 999,
-    border: "1px solid rgba(255,255,255,.40)",
-    background: "rgba(255,255,255,.15)",
-    color: "#fff",
-    display: "grid",
-    placeItems: "center",
-    fontSize: 22,
-    cursor: "pointer",
+    background: "rgba(15,23,42,.10)",
+    boxShadow: "0 10px 30px rgba(15,23,42,.10)",
   },
 
-  /* Section title */
-  sectionTitleWrap: {
-    background: "#fff",
-    borderBottom: "1px solid rgba(0,0,0,.06)",
+  /* Brands strip */
+  brandStrip: {
+    marginTop: 16,
+    background: "#F2D34B",
+    borderTop: "1px solid rgba(15,23,42,.10)",
+    borderBottom: "1px solid rgba(15,23,42,.10)",
   },
-  sectionTitle: {
-    maxWidth: 1200,
-    margin: "0 auto",
-    padding: "18px 18px",
+  brandRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 18,
+    padding: "16px 0",
+    flexWrap: "wrap",
+  },
+  brandLogo: {
     fontWeight: 900,
-    fontSize: 22,
-    color: "rgba(17,24,39,.92)",
+    letterSpacing: 0.6,
+    color: "rgba(15,23,42,.70)",
+    fontSize: 13,
   },
 
-  /* GRID */
-  container: {
-    maxWidth: 1200,
-    margin: "0 auto",
-    padding: "22px 18px 60px",
+  /* Section */
+  section: { padding: "28px 0 70px" },
+  sectionHead: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 14,
   },
+  h2: { margin: 0, fontWeight: 900, fontSize: 18, letterSpacing: 0.4 },
+  sectionMeta: { display: "flex", gap: 10, alignItems: "center" },
+  countPill: {
+    padding: "8px 12px",
+    borderRadius: 999,
+    background: "#FFFFFF",
+    border: "1px solid rgba(15,23,42,.10)",
+    fontWeight: 900,
+    fontSize: 12,
+    color: "rgba(15,23,42,.78)",
+  },
+
+  /* Grid + cards (New Arrivals style) */
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
     gap: 18,
   },
-
-  /* CARD */
+  cardLink: { textDecoration: "none", color: "inherit" },
   card: {
-    background: "#fff",
-    borderRadius: 14,
-    border: "1px solid rgba(0,0,0,.06)",
-    boxShadow: "0 10px 28px rgba(0,0,0,.06)",
+    background: "#FFFFFF",
+    borderRadius: 18,
+    border: "1px solid rgba(15,23,42,.08)",
     overflow: "hidden",
-    transition:
-      "transform .22s ease, box-shadow .22s ease, border-color .22s ease",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 18,
-    height: 180,
   },
-  logoImg: {
-    maxWidth: "100%",
-    maxHeight: "100%",
+  cardImgWrap: {
+    height: 240,
+    background: "#F7F7F4",
+    borderBottom: "1px solid rgba(15,23,42,.06)",
+    display: "grid",
+    placeItems: "center",
+    padding: 14,
+  },
+  cardImg: {
+    width: "100%",
+    height: "100%",
     objectFit: "contain",
+    borderRadius: 12,
   },
-  cardHeader: {
-    padding: 18,
-    textAlign: "center",
-  },
-  cardName: {
-    fontWeight: 900,
-    fontSize: 15,
-    color: "rgba(17,24,39,.92)",
-    marginBottom: 6,
-  },
-  cardSub: {
-    fontSize: 12,
-    color: "rgba(107,114,128,.95)",
-    fontWeight: 700,
-  },
-  cardFooter: {
-    padding: 16,
-    borderTop: "1px solid rgba(0,0,0,.06)",
+  cardBody: { padding: 16 },
+  cardTitleRow: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
   },
-  priceRow: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: 8,
-  },
-  priceLabel: { fontSize: 12, color: "rgba(107,114,128,.9)", fontWeight: 800 },
-  priceValue: { fontSize: 14, color: "#ef4444", fontWeight: 900 },
-  cardCta: {
-    fontSize: 13,
+  cardTitle: {
+    margin: 0,
     fontWeight: 900,
-    color: "rgba(37,99,235,.98)",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 8,
+    fontSize: 14,
+    color: "#0B0F19",
+  },
+  cardTag: {
+    fontSize: 11,
+    fontWeight: 900,
+    padding: "6px 10px",
+    borderRadius: 999,
+    background: "rgba(242,211,75,.35)",
+    border: "1px solid rgba(242,211,75,.60)",
+    color: "rgba(15,23,42,.78)",
     whiteSpace: "nowrap",
   },
-  arrow: { transform: "translateY(-.5px)" },
+  cardSub: {
+    margin: "10px 0 0",
+    color: "rgba(15,23,42,.70)",
+    fontSize: 12.5,
+    lineHeight: 1.55,
+    fontWeight: 600,
+  },
+  cardFooter: { marginTop: 14, display: "flex", justifyContent: "flex-end" },
+  cardCta: { fontWeight: 900, fontSize: 12.5, color: "#0B0F19" },
 };
