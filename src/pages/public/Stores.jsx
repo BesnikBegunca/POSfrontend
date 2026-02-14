@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import UserMenu from "../../components/UserMenu";
+import { useTheme, themes } from "../../context/ThemeContext";
 
 const API = "http://localhost:5083";
 
@@ -10,13 +11,21 @@ const HERO_BG = "/hero.jpg";
 
 export default function Stores() {
   const [stores, setStores] = useState([]);
+  const { theme, toggleTheme, isDark } = useTheme();
+  const themePalette = themes[theme] || themes.light;
 
   useEffect(() => {
     axios.get(`${API}/api/public/stores`).then((r) => setStores(r.data));
   }, []);
 
   return (
-    <div style={styles.page}>
+    <div
+      style={{
+        ...styles.page,
+        background: themePalette.background,
+        color: themePalette.text,
+      }}
+    >
       {/* TOP STRIP (si ne foto) */}
       <div style={styles.topStrip}>
         <div style={styles.topStripInner}>
@@ -40,7 +49,15 @@ export default function Stores() {
       </div>
 
       {/* NAVBAR */}
-      <nav style={styles.navbar}>
+      <nav
+        style={{
+          ...styles.navbar,
+          background: isDark ? "#0f172a" : styles.navbar.background,
+          borderBottom: isDark
+            ? "1px solid rgba(255,255,255,.08)"
+            : styles.navbar.borderBottom,
+        }}
+      >
         <div style={styles.navInner}>
           <Link to="/" style={styles.logoLink}>
             <div style={styles.logo}>MyStore</div>
@@ -73,16 +90,59 @@ export default function Stores() {
 
           <div style={styles.navRight}>
             <div style={styles.navLinks}>
-              <Link to="/" style={styles.navLink} className="nav-link">
+              <Link
+                to="/"
+                style={{
+                  ...styles.navLink,
+                  color: isDark
+                    ? "rgba(248,250,252,.92)"
+                    : styles.navLink.color,
+                  background: isDark
+                    ? "rgba(15,23,42,.45)"
+                    : styles.navLink.background,
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,.18)"
+                    : styles.navLink.border,
+                }}
+                className="nav-link"
+              >
                 Home
               </Link>
-              <Link to="/stores" style={styles.navLink} className="nav-link">
+              <Link
+                to="/stores"
+                style={{
+                  ...styles.navLink,
+                  color: isDark
+                    ? "rgba(248,250,252,.92)"
+                    : styles.navLink.color,
+                  background: isDark
+                    ? "rgba(15,23,42,.45)"
+                    : styles.navLink.background,
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,.18)"
+                    : styles.navLink.border,
+                }}
+                className="nav-link"
+              >
                 Stores
               </Link>
             </div>
 
             <div style={styles.cartWrap}>
-              <div style={styles.cartPill}>
+              <div
+                style={{
+                  ...styles.cartPill,
+                  background: isDark
+                    ? "rgba(255,255,255,.12)"
+                    : styles.cartPill.background,
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,.18)"
+                    : styles.cartPill.border,
+                  color: isDark
+                    ? "rgba(248,250,252,.95)"
+                    : styles.cartPill.color,
+                }}
+              >
                 🛒 <span style={styles.cartText}>Cart</span>
                 <span style={styles.cartBadge}>0</span>
               </div>
@@ -91,6 +151,25 @@ export default function Stores() {
             <div style={styles.userWrap}>
               <UserMenu />
             </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={{
+                ...styles.themeToggle,
+                background: isDark
+                  ? "rgba(255,255,255,.12)"
+                  : "rgba(17,24,39,.12)",
+                color: isDark ? "#f8fafc" : "#111827",
+                border: isDark
+                  ? "1px solid rgba(255,255,255,.22)"
+                  : "1px solid rgba(0,0,0,.12)",
+              }}
+              aria-label="Toggle theme"
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? "Light" : "Dark"}
+            </button>
           </div>
         </div>
       </nav>
@@ -123,8 +202,23 @@ export default function Stores() {
       </header>
 
       {/* SECTION TITLE (si ne screenshot) */}
-      <section style={styles.sectionTitleWrap}>
-        <div style={styles.sectionTitle}>Man &amp; Woman Fashion</div>
+      <section
+        style={{
+          ...styles.sectionTitleWrap,
+          background: themePalette.card,
+          borderBottom: isDark
+            ? "1px solid rgba(255,255,255,.08)"
+            : styles.sectionTitleWrap.borderBottom,
+        }}
+      >
+        <div
+          style={{
+            ...styles.sectionTitle,
+            color: themePalette.text,
+          }}
+        >
+          Man &amp; Woman Fashion
+        </div>
       </section>
 
       {/* STORES GRID */}
@@ -136,7 +230,19 @@ export default function Stores() {
               to={`/store/${s.id}`}
               style={{ textDecoration: "none" }}
             >
-              <div style={styles.card} className="store-card">
+              <div
+                style={{
+                  ...styles.card,
+                  background: themePalette.card,
+                  border: isDark
+                    ? "1px solid rgba(255,255,255,.08)"
+                    : styles.card.border,
+                  boxShadow: isDark
+                    ? "0 10px 28px rgba(0,0,0,.22)"
+                    : styles.card.boxShadow,
+                }}
+                className="store-card"
+              >
                 <img
                   src={`/assets/logo/${s.name.toLowerCase().replace(/[^a-z]/g, "")}.png`}
                   alt={s.name}
@@ -350,6 +456,15 @@ const styles = {
     fontWeight: 900,
   },
   userWrap: { display: "flex", alignItems: "center" },
+  themeToggle: {
+    height: 36,
+    padding: "0 12px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 900,
+    cursor: "pointer",
+    letterSpacing: 0.3,
+  },
 
   /* HERO */
   hero: {

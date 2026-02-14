@@ -43,7 +43,7 @@ export default function SuperAdminStoresList() {
     const t = q.trim().toLowerCase();
     if (!t) return stores;
     return stores.filter((s) =>
-      `${s.name} ${s.slug} ${s.ownerEmail}`.toLowerCase().includes(t)
+      `${s.name} ${s.slug} ${s.ownerEmail}`.toLowerCase().includes(t),
     );
   }, [q, stores]);
 
@@ -77,17 +77,19 @@ export default function SuperAdminStoresList() {
       const res = await axios.put(
         `${API}/api/superadmin/stores/${editing.id}`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setStores((prev) =>
-        prev.map((x) => (x.id === editing.id ? { ...x, ...res.data } : x))
+        prev.map((x) => (x.id === editing.id ? { ...x, ...res.data } : x)),
       );
 
       closeEdit();
     } catch (e2) {
       const data = e2?.response?.data;
-      setErr(typeof data === "string" ? data : JSON.stringify(data ?? "Save failed"));
+      setErr(
+        typeof data === "string" ? data : JSON.stringify(data ?? "Save failed"),
+      );
       setSaving(false);
     }
   };
@@ -98,11 +100,11 @@ export default function SuperAdminStoresList() {
       const res = await axios.put(
         `${API}/api/superadmin/stores/${s.id}`,
         { isActive: !s.isActive },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       setStores((prev) =>
-        prev.map((x) => (x.id === s.id ? { ...x, ...res.data } : x))
+        prev.map((x) => (x.id === s.id ? { ...x, ...res.data } : x)),
       );
     } catch (e2) {
       const data = e2?.response?.data;
@@ -111,7 +113,9 @@ export default function SuperAdminStoresList() {
   };
 
   const del = async (s) => {
-    const ok = window.confirm(`Delete store "${s.name}"? (This will remove it from DB)`);
+    const ok = window.confirm(
+      `Delete store "${s.name}"? (This will remove it from DB)`,
+    );
     if (!ok) return;
 
     setErr("");
@@ -141,7 +145,14 @@ export default function SuperAdminStoresList() {
         </button>
       </div>
 
-      <div style={{ marginTop: 12, display: "flex", gap: 10, alignItems: "center" }}>
+      <div
+        style={{
+          marginTop: 12,
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+        }}
+      >
         <input
           style={search}
           placeholder="Search: name / slug / owner email..."
@@ -195,9 +206,11 @@ export default function SuperAdminStoresList() {
               </tr>
             ))}
 
-            {(!loading && filtered.length === 0) && (
+            {!loading && filtered.length === 0 && (
               <tr>
-                <td style={td} colSpan={6}>No stores found.</td>
+                <td style={td} colSpan={6}>
+                  No stores found.
+                </td>
               </tr>
             )}
           </tbody>
@@ -208,24 +221,47 @@ export default function SuperAdminStoresList() {
       {editing && (
         <div style={modalBackdrop} onClick={closeEdit}>
           <div style={modalCard} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 10,
+              }}
+            >
               <div>
                 <div style={{ fontWeight: 900, fontSize: 18 }}>Edit Store</div>
                 <div style={{ opacity: 0.8, marginTop: 4 }}>
                   ID: {editing.id} • Owner: {editing.ownerEmail}
                 </div>
               </div>
-              <button style={btnOutline} onClick={closeEdit}>Close</button>
+              <button style={btnOutline} onClick={closeEdit}>
+                Close
+              </button>
             </div>
 
             <div style={{ marginTop: 14, display: "grid", gap: 10 }}>
               <label style={label}>Name</label>
-              <input style={inp} value={name} onChange={(e) => setName(e.target.value)} />
+              <input
+                style={inp}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
 
               <label style={label}>Slug</label>
-              <input style={inp} value={slug} onChange={(e) => setSlug(e.target.value)} />
+              <input
+                style={inp}
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+              />
 
-              <label style={{ ...label, display: "flex", alignItems: "center", gap: 10 }}>
+              <label
+                style={{
+                  ...label,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
                 <input
                   type="checkbox"
                   checked={isActive}
@@ -247,16 +283,22 @@ export default function SuperAdminStoresList() {
 
 /* ================= styles ================= */
 
-const topRow = { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 };
+const topRow = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+};
 
 const search = {
   flex: 1,
   padding: 12,
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.14)",
-  background: "rgba(255,255,255,0.06)",
-  color: "#e9eefb",
+  border: "1px solid rgba(15,23,42,0.12)",
+  background: "#ffffff",
+  color: "#0f172a",
   outline: "none",
+  boxShadow: "0 10px 22px rgba(15,23,42,0.05)",
 };
 
 const table = {
@@ -265,22 +307,26 @@ const table = {
   borderSpacing: 0,
   borderRadius: 14,
   overflow: "hidden",
-  border: "1px solid rgba(255,255,255,0.12)",
+  border: "1px solid rgba(15,23,42,0.08)",
+  background: "#ffffff",
+  boxShadow: "0 18px 40px rgba(15,23,42,0.08)",
 };
 
 const th = {
   textAlign: "left",
   padding: 12,
   fontSize: 12,
-  opacity: 0.85,
-  background: "rgba(0,0,0,0.25)",
-  borderBottom: "1px solid rgba(255,255,255,0.12)",
+  opacity: 0.7,
+  background: "#fff7ed",
+  borderBottom: "1px solid rgba(15,23,42,0.10)",
+  color: "#7c2d12",
 };
 
 const td = {
   padding: 12,
-  borderBottom: "1px solid rgba(255,255,255,0.10)",
-  opacity: 0.9,
+  borderBottom: "1px solid rgba(15,23,42,0.08)",
+  opacity: 0.85,
+  color: "#0f172a",
 };
 
 const tdStrong = { ...td, fontWeight: 900, opacity: 1 };
@@ -291,17 +337,19 @@ const pill = (active) => ({
   borderRadius: 999,
   fontSize: 12,
   fontWeight: 900,
-  background: active ? "rgba(16,185,129,0.18)" : "rgba(255,60,60,0.18)",
-  border: active ? "1px solid rgba(16,185,129,0.30)" : "1px solid rgba(255,60,60,0.30)",
-  color: active ? "#b6ffcf" : "#ffd5d5",
+  background: active ? "rgba(34,197,94,0.14)" : "rgba(239,68,68,0.12)",
+  border: active
+    ? "1px solid rgba(34,197,94,0.30)"
+    : "1px solid rgba(239,68,68,0.25)",
+  color: active ? "#166534" : "#b91c1c",
 });
 
 const btnSmall = {
   padding: "8px 10px",
   borderRadius: 10,
-  border: "1px solid rgba(255,255,255,0.16)",
-  background: "rgba(233,238,251,0.90)",
-  color: "#0b1220",
+  border: "1px solid rgba(245,158,11,0.35)",
+  background: "rgba(245,158,11,0.14)",
+  color: "#7c2d12",
   fontWeight: 900,
   cursor: "pointer",
 };
@@ -310,8 +358,8 @@ const btnDanger = {
   padding: "8px 10px",
   borderRadius: 10,
   border: "1px solid rgba(255,60,60,0.28)",
-  background: "rgba(255,60,60,0.16)",
-  color: "#ffd5d5",
+  background: "rgba(239,68,68,0.12)",
+  color: "#b91c1c",
   fontWeight: 900,
   cursor: "pointer",
 };
@@ -319,19 +367,20 @@ const btnDanger = {
 const btnOutline = {
   padding: "10px 12px",
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.16)",
-  background: "transparent",
-  color: "#e9eefb",
+  border: "1px solid rgba(15,23,42,0.14)",
+  background: "#ffffff",
+  color: "#0f172a",
   fontWeight: 900,
   cursor: "pointer",
+  boxShadow: "0 10px 22px rgba(15,23,42,0.05)",
 };
 
 const btnPrimary = {
   padding: 12,
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.16)",
-  background: "rgba(233,238,251,0.92)",
-  color: "#0b1220",
+  border: "1px solid rgba(245,158,11,0.35)",
+  background: "#f59e0b",
+  color: "#1f2937",
   fontWeight: 900,
   cursor: "pointer",
 };
@@ -340,9 +389,9 @@ const errorBox = {
   marginTop: 12,
   padding: 12,
   borderRadius: 12,
-  background: "rgba(255,60,60,0.15)",
-  border: "1px solid rgba(255,60,60,0.24)",
-  color: "#ffd5d5",
+  background: "rgba(239,68,68,0.12)",
+  border: "1px solid rgba(239,68,68,0.22)",
+  color: "#b91c1c",
   fontWeight: 800,
 };
 
@@ -360,17 +409,19 @@ const modalCard = {
   width: "min(520px, 96vw)",
   borderRadius: 18,
   padding: 16,
-  background: "rgba(17, 26, 47, 0.98)",
-  border: "1px solid rgba(255,255,255,0.12)",
+  background: "#ffffff",
+  border: "1px solid rgba(15,23,42,0.12)",
+  boxShadow: "0 26px 60px rgba(15,23,42,0.18)",
 };
 
-const label = { fontSize: 12, fontWeight: 900, opacity: 0.85 };
+const label = { fontSize: 12, fontWeight: 900, opacity: 0.7 };
 
 const inp = {
   padding: 12,
   borderRadius: 12,
-  border: "1px solid rgba(255,255,255,0.14)",
-  background: "rgba(255,255,255,0.06)",
-  color: "#e9eefb",
+  border: "1px solid rgba(15,23,42,0.12)",
+  background: "#ffffff",
+  color: "#0f172a",
   outline: "none",
+  boxShadow: "0 10px 22px rgba(15,23,42,0.05)",
 };

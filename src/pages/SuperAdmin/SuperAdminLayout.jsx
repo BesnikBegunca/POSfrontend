@@ -1,5 +1,16 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
+const palette = {
+  bg: "#f3f4f6",
+  surface: "#ffffff",
+  surfaceSoft: "#fff7ed",
+  border: "rgba(15,23,42,0.08)",
+  text: "#0f172a",
+  muted: "rgba(15,23,42,0.60)",
+  accent: "#f59e0b",
+  accentDeep: "#b45309",
+};
+
 function Item({ to, label }) {
   return (
     <NavLink
@@ -8,12 +19,16 @@ function Item({ to, label }) {
       style={({ isActive }) => ({
         display: "block",
         padding: "10px 12px",
-        borderRadius: 10,
+        borderRadius: 12,
         textDecoration: "none",
-        color: isActive ? "#0b1220" : "#e9eefb",
-        background: isActive ? "#e9eefb" : "transparent",
-        fontWeight: 700,
+        color: isActive ? palette.text : "rgba(15,23,42,0.82)",
+        background: isActive ? palette.surfaceSoft : "transparent",
+        border: isActive
+          ? `1px solid rgba(245,158,11,0.35)`
+          : "1px solid transparent",
+        fontWeight: 800,
         marginBottom: 6,
+        boxShadow: isActive ? "0 10px 24px rgba(15,23,42,0.06)" : "none",
       })}
     >
       {label}
@@ -31,9 +46,10 @@ export default function SuperAdminLayout() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(120deg, #070B12, #0B1220)",
-        color: "#E9EEFB",
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, Arial",
+        background:
+          "linear-gradient(180deg, #fff7ed 0%, #f3f4f6 55%, #eef2f7 100%)",
+        color: palette.text,
+        fontFamily: '"Manrope", "Segoe UI", Tahoma, sans-serif',
       }}
     >
       <div
@@ -42,37 +58,48 @@ export default function SuperAdminLayout() {
           gridTemplateColumns: "280px 1fr",
           gap: 18,
           padding: 18,
-          maxWidth: 1200,
-          margin: "0 auto",
+          width: "100%",
+          maxWidth: "100%",
+          margin: 0,
         }}
       >
         <aside
           style={{
-            borderRadius: 18,
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: 20,
+            background: palette.surface,
+            border: `1px solid ${palette.border}`,
             padding: 14,
             position: "sticky",
             top: 18,
             height: "calc(100vh - 36px)",
             overflow: "auto",
+            boxShadow: "0 20px 50px rgba(15,23,42,0.10)",
           }}
         >
           <div style={{ padding: 10, marginBottom: 12 }}>
-            <div style={{ fontSize: 18, fontWeight: 900 }}>SuperAdmin</div>
-            <div style={{ opacity: 0.9, marginTop: 6 }}>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                color: palette.accentDeep,
+              }}
+            >
+              SuperAdmin
+            </div>
+            <div style={{ opacity: 0.9, marginTop: 6, color: palette.text }}>
               <div style={{ fontWeight: 800 }}>{fullName}</div>
-              <div style={{ fontSize: 12, opacity: 0.85 }}>{email}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>{email}</div>
               <div
                 style={{
                   marginTop: 8,
                   display: "inline-block",
                   padding: "4px 10px",
                   borderRadius: 999,
-                  background: "rgba(233,238,251,0.14)",
-                  border: "1px solid rgba(233,238,251,0.25)",
+                  background: "rgba(245,158,11,0.16)",
+                  border: "1px solid rgba(245,158,11,0.28)",
                   fontSize: 12,
                   fontWeight: 800,
+                  color: palette.accentDeep,
                 }}
               >
                 Role: {role}
@@ -81,7 +108,7 @@ export default function SuperAdminLayout() {
           </div>
 
           <div style={{ padding: 10 }}>
-            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 10 }}>
+            <div style={{ fontSize: 12, opacity: 0.6, marginBottom: 10 }}>
               MENU
             </div>
 
@@ -100,9 +127,9 @@ export default function SuperAdminLayout() {
                 width: "100%",
                 padding: "10px 12px",
                 borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.18)",
-                background: "rgba(255, 60, 60, 0.15)",
-                color: "#ffd5d5",
+                border: "1px solid rgba(239,68,68,0.25)",
+                background: "rgba(239,68,68,0.10)",
+                color: "#b91c1c",
                 fontWeight: 900,
                 cursor: "pointer",
               }}
@@ -114,11 +141,12 @@ export default function SuperAdminLayout() {
 
         <main
           style={{
-            borderRadius: 18,
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.10)",
+            borderRadius: 20,
+            background: palette.surface,
+            border: `1px solid ${palette.border}`,
             padding: 18,
             minHeight: "calc(100vh - 36px)",
+            boxShadow: "0 24px 60px rgba(15,23,42,0.10)",
           }}
         >
           <Outlet />

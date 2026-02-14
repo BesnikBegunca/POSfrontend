@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import UserMenu from "../../components/UserMenu";
+import { useTheme, themes } from "../../context/ThemeContext";
 
 const API = "http://localhost:5083";
 
@@ -11,7 +12,13 @@ const API = "http://localhost:5083";
 =========================== */
 const Icon = {
   Cart: ({ size = 18 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M6.6 6.5h14l-1.6 8.2a2 2 0 0 1-2 1.6H9a2 2 0 0 1-2-1.6L5.6 3.8A1.5 1.5 0 0 0 4.1 2.5H2.8"
         stroke="currentColor"
@@ -26,7 +33,13 @@ const Icon = {
     </svg>
   ),
   Bolt: ({ size = 18 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M13 2 4 14h7l-1 8 10-14h-7l0-6Z"
         stroke="currentColor"
@@ -37,7 +50,13 @@ const Icon = {
     </svg>
   ),
   X: ({ size = 18 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M18 6 6 18M6 6l12 12"
         stroke="currentColor"
@@ -48,7 +67,13 @@ const Icon = {
     </svg>
   ),
   Home: ({ size = 16 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M3 10.5 12 3l9 7.5V21a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 21V10.5Z"
         stroke="currentColor"
@@ -66,7 +91,13 @@ const Icon = {
     </svg>
   ),
   Store: ({ size = 16 }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+    >
       <path
         d="M4 7 6 3h12l2 4v2a3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1-3 3 3 3 0 0 1-3-3V7Z"
         stroke="currentColor"
@@ -104,6 +135,8 @@ function safeGetSession() {
 export default function StorePage() {
   const { id } = useParams();
   const nav = useNavigate();
+  const { theme, toggleTheme, isDark } = useTheme();
+  const themePalette = themes[theme] || themes.light;
 
   const [products, setProducts] = useState([]);
   const [store, setStore] = useState(null);
@@ -146,15 +179,18 @@ export default function StorePage() {
         });
 
         const nm = {
-          fullName: r.data?.fullName ?? r.data?.FullName ?? r.data?.name ?? r.data?.Name ?? "",
+          fullName:
+            r.data?.fullName ??
+            r.data?.FullName ??
+            r.data?.name ??
+            r.data?.Name ??
+            "",
           email: r.data?.email ?? r.data?.Email ?? "",
         };
 
         setMe(nm);
         if (nm.fullName) localStorage.setItem("fullName", nm.fullName);
         if (nm.email) localStorage.setItem("email", nm.email);
-
-
       } catch (error) {
         const status = error?.response?.status;
         if (status === 401) {
@@ -202,7 +238,9 @@ export default function StorePage() {
 
   function addToCart(p) {
     const next = [...cart];
-    const existing = next.find((x) => x.productId === p.id && x.storeId === Number(id));
+    const existing = next.find(
+      (x) => x.productId === p.id && x.storeId === Number(id),
+    );
     if (existing) existing.qty += 1;
     else
       next.push({
@@ -218,16 +256,35 @@ export default function StorePage() {
     localStorage.setItem("cart", JSON.stringify(next));
   }
 
-  const cartCount = useMemo(() => cart.reduce((s, x) => s + (x.qty || 0), 0), [cart]);
-
-
+  const cartCount = useMemo(
+    () => cart.reduce((s, x) => s + (x.qty || 0), 0),
+    [cart],
+  );
 
   return (
-    <div style={styles.page}>
+    <div
+      style={{
+        ...styles.page,
+        background: themePalette.background,
+        color: themePalette.text,
+      }}
+    >
       {/* NAVBAR */}
-      <nav style={styles.navbar}>
-        <Link to="/" style={styles.logoLink}>
-          <div style={styles.logo}>
+      <nav
+        style={{
+          ...styles.navbar,
+          background: isDark ? "rgba(11,18,32,.9)" : "rgba(255,255,255,.95)",
+          borderBottom: isDark
+            ? "1px solid rgba(148,163,184,.18)"
+            : "1px solid rgba(15,23,42,.08)",
+          color: isDark ? "#fff" : "#0f172a",
+        }}
+      >
+        <Link
+          to="/"
+          style={{ ...styles.logoLink, color: isDark ? "#fff" : "#0f172a" }}
+        >
+          <div style={{ ...styles.logo, color: isDark ? "#fff" : "#0f172a" }}>
             <span style={styles.logoDot} />
             MyStore
           </div>
@@ -235,17 +292,49 @@ export default function StorePage() {
 
         <div style={styles.navRight}>
           <div style={styles.navLinks}>
-            <Link to="/" style={styles.navLink}>
-              <span style={styles.navIcon}><Icon.Home /></span>
+            <Link
+              to="/"
+              style={{
+                ...styles.navLink,
+                color: isDark ? "rgba(226,232,240,.9)" : "#0f172a",
+                border: isDark
+                  ? styles.navLink.border
+                  : "1px solid rgba(15,23,42,.08)",
+              }}
+            >
+              <span style={styles.navIcon}>
+                <Icon.Home />
+              </span>
               Home
             </Link>
-            <Link to="/stores" style={styles.navLink}>
-              <span style={styles.navIcon}><Icon.Store /></span>
+            <Link
+              to="/stores"
+              style={{
+                ...styles.navLink,
+                color: isDark ? "rgba(226,232,240,.9)" : "#0f172a",
+                border: isDark
+                  ? styles.navLink.border
+                  : "1px solid rgba(15,23,42,.08)",
+              }}
+            >
+              <span style={styles.navIcon}>
+                <Icon.Store />
+              </span>
               Stores
             </Link>
           </div>
 
-          <div style={styles.cartPill} title="Cart (later)">
+          <div
+            style={{
+              ...styles.cartPill,
+              background: isDark ? styles.cartPill.background : "#f8fafc",
+              border: isDark
+                ? styles.cartPill.border
+                : "1px solid rgba(15,23,42,.12)",
+              color: isDark ? styles.cartPill.color : "#0f172a",
+            }}
+            title="Cart (later)"
+          >
             <Icon.Cart />
             <b style={{ marginLeft: 8 }}>{cartCount}</b>
           </div>
@@ -253,34 +342,80 @@ export default function StorePage() {
           <div style={styles.authBtns}>
             <UserMenu />
           </div>
+
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              ...styles.themeToggle,
+              background: isDark ? "rgba(255,255,255,.12)" : "#f1f5f9",
+              color: isDark ? "#f8fafc" : "#0f172a",
+              border: isDark
+                ? "1px solid rgba(255,255,255,.22)"
+                : "1px solid rgba(15,23,42,.12)",
+            }}
+            aria-label="Toggle theme"
+            title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {isDark ? "Light" : "Dark"}
+          </button>
         </div>
       </nav>
 
-      <div style={styles.body}>
+      <div
+        style={{
+          ...styles.body,
+          background: isDark
+            ? "radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.12), transparent 60%), radial-gradient(900px 500px at 85% 0%, rgba(16,185,129,.12), transparent 55%), #0b1220"
+            : styles.body.background,
+        }}
+      >
         <div style={styles.container}>
           <div style={styles.headerRow}>
             <div>
-              <h1 style={styles.h1}>{store?.name ?? "Store"}</h1>
-              <div style={styles.subtle}>Browse products and order instantly with “Buy now”.</div>
+              <h1
+                style={{
+                  ...styles.h1,
+                  color: isDark ? "#f8fafc" : styles.h1.color,
+                }}
+              >
+                {store?.name ?? "Store"}
+              </h1>
+              <div
+                style={{
+                  ...styles.subtle,
+                  color: isDark ? "rgba(226,232,240,.75)" : styles.subtle.color,
+                }}
+              >
+                Browse products and order instantly with “Buy now”.
+              </div>
             </div>
 
             <div style={styles.userChip}>
               {meLoading ? (
-                <span style={{ opacity: 0.75, fontSize: 13 }}>Checking session…</span>
+                <span style={{ opacity: 0.75, fontSize: 13 }}>
+                  Checking session…
+                </span>
               ) : me?.email || me?.fullName ? (
                 <>
                   <span style={styles.userDot} />
                   <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.1 }}>
+                    <span
+                      style={{ fontWeight: 900, fontSize: 12, lineHeight: 1.1 }}
+                    >
                       {me.fullName || "User"}
                     </span>
-                    <span style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.1 }}>
+                    <span
+                      style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.1 }}
+                    >
                       {me.email || ""}
                     </span>
                   </div>
                 </>
               ) : (
-                <span style={{ opacity: 0.75, fontSize: 13 }}>Not logged in</span>
+                <span style={{ opacity: 0.75, fontSize: 13 }}>
+                  Not logged in
+                </span>
               )}
             </div>
           </div>
@@ -295,12 +430,19 @@ export default function StorePage() {
                 <div key={p.id} style={styles.card}>
                   <div style={styles.cardMedia}>
                     <img
-                      src={p.imageUrl ? `${API}${p.imageUrl}` : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%239ca3af' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"}
+                      src={
+                        p.imageUrl
+                          ? `${API}${p.imageUrl}`
+                          : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%239ca3af' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"
+                      }
                       alt={p.name}
                       style={styles.cardImg}
                       onError={(e) => {
-                        console.error(`Image failed to load for product "${p.name}". URL was: ${p.imageUrl || "(empty)"}`);
-                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%23d1d5db' text-anchor='middle' dy='.3em'%3EImage Not Found%3C/text%3E%3C/svg%3E";
+                        console.error(
+                          `Image failed to load for product "${p.name}". URL was: ${p.imageUrl || "(empty)"}`,
+                        );
+                        e.target.src =
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='%23d1d5db' text-anchor='middle' dy='.3em'%3EImage Not Found%3C/text%3E%3C/svg%3E";
                       }}
                     />
                     {d > 0 && <div style={styles.badgeDiscount}>-{d}%</div>}
@@ -313,7 +455,11 @@ export default function StorePage() {
                     <div style={styles.priceRow}>
                       <div style={styles.price}>
                         €{fp.toFixed(2)}
-                        {d > 0 && <span style={styles.priceStrike}>€{pr.toFixed(2)}</span>}
+                        {d > 0 && (
+                          <span style={styles.priceStrike}>
+                            €{pr.toFixed(2)}
+                          </span>
+                        )}
                       </div>
                       <div style={styles.stock}>
                         Stock: <b>{p.quantity}</b>
@@ -322,12 +468,19 @@ export default function StorePage() {
 
                     <div style={styles.actionsRow}>
                       <button onClick={() => openBuy(p)} style={styles.buyBtn}>
-                        <span style={styles.btnIcon}><Icon.Bolt /></span>
+                        <span style={styles.btnIcon}>
+                          <Icon.Bolt />
+                        </span>
                         Buy now
                       </button>
 
-                      <button onClick={() => addToCart(p)} style={styles.cartBtn}>
-                        <span style={styles.btnIcon}><Icon.Cart /></span>
+                      <button
+                        onClick={() => addToCart(p)}
+                        style={styles.cartBtn}
+                      >
+                        <span style={styles.btnIcon}>
+                          <Icon.Cart />
+                        </span>
                         Add to cart
                       </button>
                     </div>
@@ -338,8 +491,6 @@ export default function StorePage() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
@@ -442,6 +593,15 @@ const styles = {
   },
 
   authBtns: { display: "flex", gap: 10, alignItems: "center" },
+  themeToggle: {
+    height: 34,
+    padding: "0 12px",
+    borderRadius: 999,
+    fontSize: 12,
+    fontWeight: 900,
+    cursor: "pointer",
+    letterSpacing: 0.3,
+  },
 
   body: {
     minHeight: "calc(100vh - 68px)",
@@ -679,7 +839,12 @@ const styles = {
   },
 
   field: { display: "block" },
-  fieldLabel: { fontSize: 12, fontWeight: 950, marginBottom: 6, color: "#0f172a" },
+  fieldLabel: {
+    fontSize: 12,
+    fontWeight: 950,
+    marginBottom: 6,
+    color: "#0f172a",
+  },
 
   input: {
     width: "100%",

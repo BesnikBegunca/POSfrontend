@@ -18,7 +18,7 @@ import CreateStore from "./pages/SuperAdmin/CreateStore";
 
 // OWNER
 import OwnerLayout from "./pages/owner/OwnerLayout";
-import OwnerHome from "./pages/owner/OwnerHome";
+import OwnerHome from "./pages/Owner/OwnerHome";
 import OwnerCreateStaff from "./pages/Owner/OwnerCreateStaff";
 import OwnerStaffList from "./pages/Owner/OwnerStaffList";
 import OwnerSettings from "./pages/Owner/OwnerSettings";
