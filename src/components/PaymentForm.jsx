@@ -115,7 +115,7 @@ export default function PaymentForm() {
       // await axios.post(`${API}/api/public/orders`, { ... }, { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
 
       setMsg("Payment confirmed (demo) ✅");
-      setTimeout(() => nav("/stores"), 900);
+      setTimeout(() => nav("/products"), 900);
     } catch (err) {
       console.error(err);
       setMsg("Payment failed. Check console.");

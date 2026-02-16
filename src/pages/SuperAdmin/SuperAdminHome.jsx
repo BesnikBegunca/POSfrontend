@@ -3,7 +3,7 @@ export default function SuperAdminHome() {
     <div>
       <h1 style={{ marginTop: 0 }}>SuperAdmin Dashboard</h1>
       <p style={{ opacity: 0.85 }}>
-        Këtu menaxhon krejt platformën: stores, owners, status, etj.
+        Manage the entire platform here: stores, owners, status, etc.
       </p>
 
       <div

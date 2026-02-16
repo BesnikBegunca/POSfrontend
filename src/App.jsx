@@ -5,10 +5,15 @@ import { loadStripe } from "@stripe/stripe-js";
 
 // AUTH
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 
 // PUBLIC
 import Stores from "./pages/public/Stores";
 import StorePage from "./pages/public/StorePage";
+import Collections from "./pages/public/Collections";
+import NewPage from "./pages/public/NewPage";
+import AboutPage from "./pages/public/AboutPage";
+import ContactPage from "./pages/public/ContactPage";
 
 // SUPERADMIN
 import SuperAdminLayout from "./pages/SuperAdmin/SuperAdminLayout";
@@ -65,7 +70,12 @@ export default function App() {
       <Routes>
         {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Stores />} />
-        <Route path="/stores" element={<Stores />} />
+        <Route path="/stores" element={<Collections />} />
+        <Route path="/products" element={<Collections />} />
+        <Route path="/collections" element={<Collections />} />
+        <Route path="/new" element={<NewPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/store/:id" element={<StorePage />} />
         <Route path="/checkout" element={<Elements stripe={stripePromise}><CheckoutPage /></Elements>} />
         <Route path="/payment" element={<Elements stripe={stripePromise}><PaymentPage /></Elements>} />
@@ -74,6 +84,7 @@ export default function App() {
 
         {/* ================= AUTH ================= */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* ================= USER ================= */}
         <Route
