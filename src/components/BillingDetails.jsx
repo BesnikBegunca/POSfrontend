@@ -183,7 +183,7 @@ export default function BillingDetails() {
         {msg && <div style={S.msg}>{msg}</div>}
 
         <div style={S.footer}>
-          <button style={S.backBtn} onClick={() => nav("/stores")}>← Back</button>
+          <button style={S.backBtn} onClick={() => nav("/products")}>← Back</button>
           <button style={S.nextBtn} type="submit">
             Next: Payment →
           </button>

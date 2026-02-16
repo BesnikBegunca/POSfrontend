@@ -215,8 +215,8 @@ export default function StorePage() {
               Home
             </Link>
             <span style={styles.dot}>•</span>
-            <Link to="/stores" style={styles.topLink}>
-              Stores
+            <Link to="/products" style={styles.topLink}>
+              Products
             </Link>
             <span style={styles.dot}>•</span>
             <span style={{ opacity: 0.9 }}>{store?.name ?? "Store"}</span>
@@ -237,18 +237,10 @@ export default function StorePage() {
 
           <div style={styles.navRight}>
             <div style={styles.navLinks}>
-              <Link to="/" style={styles.navBtn}>
-                <span style={styles.navIcon}>
-                  <Icon.Home />
-                </span>
-                Home
-              </Link>
-              <Link to="/stores" style={styles.navBtn}>
-                <span style={styles.navIcon}>
-                  <Icon.Store />
-                </span>
-                Stores
-              </Link>
+              <Link to="/" style={styles.navBtn}>HOME</Link>
+              <Link to="/about" style={styles.navBtn}>ABOUT</Link>
+              <Link to="/products" style={styles.navBtn}>PRODUCTS</Link>
+              <Link to="/contact" style={styles.navBtn}>CONTACTS</Link>
             </div>
 
             <div style={styles.cartPill} title="Cart (later)">

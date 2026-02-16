@@ -184,7 +184,7 @@ export default function StripeCheckout() {
 
       if (status === "succeeded") {
         setMsg("Payment succeeded ✅");
-        setTimeout(() => nav("/stores"), 900);
+        setTimeout(() => nav("/products"), 900);
       } else {
         setMsg(`Payment status: ${status}`);
       }
@@ -296,7 +296,7 @@ export default function StripeCheckout() {
         {msg && <div style={S.msg}>{msg}</div>}
 
         <div style={S.footer}>
-          <Link to="/stores" style={S.backLink}>
+          <Link to="/products" style={S.backLink}>
             ← Back
           </Link>
 

@@ -98,7 +98,7 @@ export default function PaymentPage() {
       if (status === "succeeded") {
         setMsg("Payment succeeded ✅");
         // kthehu ku don
-        setTimeout(() => nav("/stores"), 800);
+        setTimeout(() => nav("/products"), 800);
       } else {
         setMsg(`Payment status: ${status}`);
       }

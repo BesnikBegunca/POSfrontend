@@ -69,11 +69,8 @@ export default function UserMenu() {
   if (!isLoggedIn) {
     return (
       <div style={styles.authBtns}>
-        <Link to="/login" style={{ ...styles.btn, ...styles.btnGhost }}>
+        <Link to="/login" style={{ ...styles.btn, ...styles.btnLogin }}>
           Login
-        </Link>
-        <Link to="/register" style={{ ...styles.btn, ...styles.btnPrimary }}>
-          Register
         </Link>
       </div>
     );
@@ -195,14 +192,9 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-  btnGhost: {
-    color: "#e2e8f0",
-    border: "1px solid rgba(226,232,240,.25)",
+  btnLogin: {
+    color: "#0B0F19",
+    border: "1px solid rgba(15,23,42,.35)",
     background: "transparent",
-  },
-  btnPrimary: {
-    color: "#0b1220",
-    background: "#ffffff",
-    border: "1px solid rgba(255,255,255,.5)",
   },
 };
